@@ -4,6 +4,8 @@ Automatically throws snowballs in The Legend of Zelda: Breath of the Wild by emu
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/udo8mv5oarg/0.jpg)](https://www.youtube.com/watch?v=udo8mv5oarg)
 
+A full writeup is [here](https://medium.com/@bertrandom/automating-zelda-3b37127e24c8).
+
 #### How to use
 
 Walk up to Pondo until the **(A) Talk** option is available and plug in the controller. It will automatically sync with the console, initiate the bowling game with Pondo, throw a perfect strike, and end the bowling game. It will play the bowling game in a loop.
