@@ -61,24 +61,24 @@ static const Buttons_t buf[] = {
 
 	// Talk to Pondo
 
-	A,			// 5
-	NOTHING, 	// 150
-	A, 			// 5
-	NOTHING,	// 300
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 1000
+	A,
+	NOTHING,
+	A,
+	NOTHING,
+	A,
+	NOTHING,
+	A,
+	NOTHING,
+	A,
+	NOTHING,
+	A,
+	NOTHING,
+	A,
+	NOTHING,
+	A,
+	NOTHING,
+	A,
+	NOTHING,
 
 	// Pick up Snowball
 
@@ -93,9 +93,7 @@ static const Buttons_t buf[] = {
 	NOTHING,
 	A,
 	NOTHING,
-	A,
-	NOTHING,
-	B,
+	B, // I'll pass
 	NOTHING,
 	A,
 	NOTHING
@@ -130,7 +128,7 @@ static const uint16_t duration[] = {
 	5,
 	150,
 	5,
-	300,
+	200,
 	5,
 	150,
 	5,
@@ -140,11 +138,11 @@ static const uint16_t duration[] = {
 	5,
 	150,
 	5,
-	150,
+	100,
+	5,
+	100,
 	5,
 	150,
-	5,
-	500,
 
 	// Pick up Snowball
 
@@ -152,19 +150,17 @@ static const uint16_t duration[] = {
 	64,
 	55,
 	25,
-	1000,
-	5,
-	500,
+	800, // Ater throw wait
 	5,
 	300,
 	5,
-	300,
+	100, // Rupee prize dialog
 	5,
-	300,
+	100,
 	5,
-	300,
+	100,
 	5,
-	1000
+	225 // Wait for Pondo to walk back to the snowball
 
 };
 
