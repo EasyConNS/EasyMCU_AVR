@@ -36,130 +36,67 @@ typedef enum {
 	TRIGGERS
 } Buttons_t;
 
-static const Buttons_t buf[] = {
+typedef struct {
+  Buttons_t button;
+  uint16_t duration;
+} command; 
 
-	// Setup controller
-
-	NOTHING,
-	TRIGGERS,
-	NOTHING,
-	TRIGGERS,
-	NOTHING,
-	A,
-	NOTHING,
-
-	// Talk to Pondo
-
-	A, // Start
-	NOTHING,
-	B, // Quick output of text
-	NOTHING,
-	A, // <- I'll try it!
-	NOTHING,
-	B,
-	NOTHING,
-	A, // <- OK!
-	NOTHING,
-	B,
-	NOTHING, // Aha! Play bells are ringing! I gotta set up the pins, but I'll be back in a flurry
-	A, // <Continue>
-	NOTHING, // Cut to different scene (Knock 'em flat!) (TODO)
-	A, // <Continue>
-	NOTHING,
-	B,
-	NOTHING, // If you can knock over all 10 pins in one roll, that's a strike
-	A, // <Continue>
-	NOTHING,
-	B,
-	NOTHING,
-	A,
-	NOTHING,
-	A,
-	NOTHING,
-
-	// Pick up Snowball
-
-	A,
-	LEFT,
-	UP,
-	THROW,
-	NOTHING,
-	A,
-	NOTHING,
-	A,
-	NOTHING,
-	A,
-	NOTHING,
-	B, // I'll pass
-	NOTHING,
-	B,
-	NOTHING,
-	A,
-	NOTHING
-
-};
-
-static const uint16_t duration[] = {
-
-	// Setup controller
-
-	250,
-	5,
-	150,
-	5,
-	150,
-	5,
-	250,
+static const command step[] = {
+  // Setup controller
+  { NOTHING,  250 },
+  { TRIGGERS,  	5 },
+  {	NOTHING,  150 },
+	{ TRIGGERS,   5 },
+	{ NOTHING,  150 },
+	{ A,          5 },
+	{ NOTHING,  250 },
 
 	// Talk to Pondo
-
-	5, // Start
-	30, 
-	5,
-	20, // Halloo, kiddums!
-	5, // <- I'll try it!
-	15,
-	5,
-	20, // Ah, the sweet music of "yes"! .. Still up for a round?
-	5, // <- OK!
-	15,
-	5,
-	20, // Aha! Play bells are ringing! I gotta set up the pins, but I'll be back in a flurry
-	5, // <Continue>
-	550, // Cut to different scene (Knock 'em flat!) (TODO)
-	5, // <Continue> // Camera transition takes place
-	50,
-	5,
-	20, // If you can knock over all 10 pins in one roll, that's a strike
-	5, // <Continue>
-	15,
-	5,
-	20, // A spare is...
-	5, // <Continue>
-	100, // Well, good luck
-	5, // <Continue>
-	150, 
+	{ A,          5 }, // Start
+	{ NOTHING,   30 },
+	{ B,          5 }, // Quick output of text
+	{ NOTHING,   20 }, // Halloo, kiddums!
+	{ A,          5 }, // <- I'll try it!
+	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ A,          5 }, // <- OK!
+	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,   20 }, // Aha! Play bells are ringing! I gotta set up the pins, but I'll be back in a flurry
+	{ A,          5 }, // <Continue>
+	{ NOTHING,  550 }, // Cut to different scene (Knock 'em flat!) (TODO)
+	{ A,          5 }, // <Continue> // Camera transition takes place after this
+	{ NOTHING,   50 },
+	{ B,          5 },
+	{ NOTHING,   20 }, // If you can knock over all 10 pins in one roll, that's a strike
+	{ A,          5 }, // <Continue>
+	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,   20 }, // A spare is...
+	{ A,          5 }, // <Continue>
+	{ NOTHING,  100 }, // Well, good luck
+	{ A,          5 }, // <Continue>
+	{ NOTHING,  150 }, // Pondo walks away
 
 	// Pick up Snowball
-
-	20,
-	64,
-	55,
-	25,
-	800, // Ater throw wait
-	5,
-	300,
-	5,
-	100, // Rupee prize dialog
-	5,
-	125, // Money requires counting
-	5,
-	15,
-	5,
-	20,
-	5,
-	225 // Wait for Pondo to walk back to the snowball
-
+	{ A,         20 },
+	{ LEFT,      64 },
+	{ UP,        55 },
+	{ THROW,     25 },
+	{ NOTHING,  800 }, // Ater throw wait
+	{ A,          5 },
+	{ NOTHING,  300 },
+	{ A,          5 },
+	{ NOTHING,  100 }, // Rupee prize dialog
+	{ A,          5 },
+	{ NOTHING,  125 }, // Money requires counting
+	{ B,          5 }, // I'll pass
+	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ A,          5 },
+	{ NOTHING,  225 }, // Wait for Pondo to walk back to the snowball
 };
 
 // Main entry point.
@@ -367,7 +304,7 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
 		case PROCESS:
 
-			switch (buf[bufindex])
+			switch (step[bufindex].button)
 			{
 
 				case UP:
@@ -418,14 +355,14 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
 			duration_count++;
 
-			if (duration_count > duration[bufindex])
+			if (duration_count > step[bufindex].duration)
 			{
 				bufindex++;
 				duration_count = 0;				
 			}
 
 
-			if (bufindex > (int)( sizeof(buf) / sizeof(buf[0])) - 1)
+			if (bufindex > (int)( sizeof(step) / sizeof(step[0])) - 1)
 			{
 
 				// state = CLEANUP;
