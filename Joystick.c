@@ -18,12 +18,6 @@ exception of Home and Capture. Descriptor modification allows us to unlock
 these buttons for our use.
 */
 
-/** \file
- *
- *  Main source file for the posts printer demo. This file contains the main tasks of
- *  the demo and is responsible for the initial application hardware configuration.
- */
-
 #include "Joystick.h"
 
 typedef enum {
@@ -42,11 +36,6 @@ typedef enum {
 	TRIGGERS
 } Buttons_t;
 
-
-
-
-
-
 static const Buttons_t buf[] = {
 
 	// Setup controller
@@ -61,19 +50,27 @@ static const Buttons_t buf[] = {
 
 	// Talk to Pondo
 
-	A,
+	A, // Start
 	NOTHING,
-	A,
+	B, // Quick output of text
 	NOTHING,
-	A,
+	A, // <- I'll try it!
 	NOTHING,
-	A,
+	B,
 	NOTHING,
-	A,
+	A, // <- OK!
 	NOTHING,
-	A,
+	B,
+	NOTHING, // Aha! Play bells are ringing! I gotta set up the pins, but I'll be back in a flurry
+	A, // <Continue>
+	NOTHING, // Cut to different scene (Knock 'em flat!) (TODO)
+	A, // <Continue>
 	NOTHING,
-	A,
+	B,
+	NOTHING, // If you can knock over all 10 pins in one roll, that's a strike
+	A, // <Continue>
+	NOTHING,
+	B,
 	NOTHING,
 	A,
 	NOTHING,
@@ -95,21 +92,12 @@ static const Buttons_t buf[] = {
 	NOTHING,
 	B, // I'll pass
 	NOTHING,
+	B,
+	NOTHING,
 	A,
 	NOTHING
 
 };
-
-
-
-
-
-
-
-
-
-
-
 
 static const uint16_t duration[] = {
 
@@ -125,24 +113,32 @@ static const uint16_t duration[] = {
 
 	// Talk to Pondo
 
+	5, // Start
+	30, 
 	5,
-	150,
+	20, // Halloo, kiddums!
+	5, // <- I'll try it!
+	15,
 	5,
-	200,
+	20, // Ah, the sweet music of "yes"! .. Still up for a round?
+	5, // <- OK!
+	15,
 	5,
-	150,
+	20, // Aha! Play bells are ringing! I gotta set up the pins, but I'll be back in a flurry
+	5, // <Continue>
+	550, // Cut to different scene (Knock 'em flat!) (TODO)
+	5, // <Continue> // Camera transition takes place
+	50,
 	5,
-	300,
+	20, // If you can knock over all 10 pins in one roll, that's a strike
+	5, // <Continue>
+	15,
 	5,
-	150,
-	5,
-	150,
-	5,
-	100,
-	5,
-	100,
-	5,
-	150,
+	20, // A spare is...
+	5, // <Continue>
+	100, // Well, good luck
+	5, // <Continue>
+	150, 
 
 	// Pick up Snowball
 
@@ -156,14 +152,15 @@ static const uint16_t duration[] = {
 	5,
 	100, // Rupee prize dialog
 	5,
-	100,
+	125, // Money requires counting
 	5,
-	100,
+	15,
+	5,
+	20,
 	5,
 	225 // Wait for Pondo to walk back to the snowball
 
 };
-
 
 // Main entry point.
 int main(void) {
