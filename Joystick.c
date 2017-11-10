@@ -65,7 +65,9 @@ static const command step[] = {
 	{ B,          5 },
 	{ NOTHING,   20 }, // Aha! Play bells are ringing! I gotta set up the pins, but I'll be back in a flurry
 	{ A,          5 }, // <Continue>
-	{ NOTHING,  550 }, // Cut to different scene (Knock 'em flat!) (TODO)
+	{ NOTHING,  325 }, // Cut to different scene (Knock 'em flat!) (TODO)
+	{ B,          5 },
+	{ NOTHING,   20 },
 	{ A,          5 }, // <Continue> // Camera transition takes place after this
 	{ NOTHING,   50 },
 	{ B,          5 },
@@ -84,7 +86,9 @@ static const command step[] = {
 	{ LEFT,      64 },
 	{ UP,        55 },
 	{ THROW,     25 },
-	{ NOTHING,  800 }, // Ater throw wait
+	{ NOTHING,  450 }, // Ater throw wait
+	{ B,          5 },
+	{ NOTHING,   20 },
 	{ A,          5 },
 	{ NOTHING,  300 },
 	{ A,          5 },
