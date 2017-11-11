@@ -82,11 +82,12 @@ static const command step[] = {
 	{ NOTHING,  150 }, // Pondo walks away
 
 	// Pick up Snowball
-	{ A,         20 },
-	{ LEFT,      64 },
-	{ UP,        55 },
+	{ A,          5 },
+	{ NOTHING,   50 },
+	{ LEFT,      42 },
+	{ UP,        80 },
 	{ THROW,     25 },
-	{ NOTHING,  450 }, // Ater throw wait
+	{ NOTHING,  550 }, // Ater throw wait
 	{ B,          5 },
 	{ NOTHING,   20 },
 	{ A,          5 },
