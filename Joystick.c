@@ -84,17 +84,37 @@ static const command step[] = {
 	// Pick up Snowball
 	{ A,          5 },
 	{ NOTHING,   50 },
-	{ LEFT,      42 },
-	{ UP,        80 },
-	{ THROW,     25 },
-	{ NOTHING,  550 }, // Ater throw wait
+	{ UP,        10 },
+	{ RIGHT,     30 },
+	{ UP,        64 },
+	{ A,         25 },
+
+	// runs if it failed to get a strike
+	{ NOTHING,   30 },
 	{ B,          5 },
 	{ NOTHING,   20 },
 	{ A,          5 },
+	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ A,          5 },
+	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ A,          5 },
+	{ NOTHING,  400 },
+	{ DOWN,      50 },
+	{ LEFT,       2 },
+	{ DOWN,       1 },
+
+	{ NOTHING,  275 }, // Ater throw wait
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
 	{ NOTHING,  300 },
-	{ A,          5 },
+	{ B,          5 },
 	{ NOTHING,  100 }, // Rupee prize dialog
-	{ A,          5 },
+	{ B,          5 },
 	{ NOTHING,  125 }, // Money requires counting
 	{ B,          5 }, // I'll pass
 	{ NOTHING,   15 },
