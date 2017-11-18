@@ -84,12 +84,11 @@ static const command step[] = {
 	// Pick up Snowball
 	{ A,          5 },
 	{ NOTHING,   50 },
-	{ UP,        10 },
-	{ RIGHT,     30 },
-	{ UP,        64 },
-	{ A,         25 },
+	{ LEFT,      42 },
+	{ UP,        80 },
+	{ THROW,     25 },
 
-	// runs if it failed to get a strike
+	// Runs if it failed to get a strike and moves back to Pondo
 	{ NOTHING,   30 },
 	{ B,          5 },
 	{ NOTHING,   20 },
@@ -103,9 +102,9 @@ static const command step[] = {
 	{ NOTHING,   20 },
 	{ A,          5 },
 	{ NOTHING,  400 },
-	{ DOWN,      50 },
-	{ LEFT,       2 },
-	{ DOWN,       1 },
+	{ DOWN,      50 }, // Return to Pondo after running away
+	{ RIGHT,     70 },
+	{ DOWN,       5 },
 
 	{ NOTHING,  275 }, // Ater throw wait
 	{ B,          5 },
