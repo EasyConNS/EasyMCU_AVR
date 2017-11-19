@@ -92,25 +92,37 @@ static const command step[] = {
 	{ NOTHING,   30 },
 	{ B,          5 },
 	{ NOTHING,   20 },
-	{ A,          5 },
+	{ B,          5 }, // I have to split dialogue (We're not splitting)
 	{ NOTHING,   15 },
 	{ B,          5 },
 	{ NOTHING,   20 },
-	{ A,          5 },
-	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,  600 },
+	{ B,          5 }, // Snowly moly... there are rules!
+	{ NOTHING,   20 },
 	{ B,          5 },
 	{ NOTHING,   20 },
-	{ A,          5 },
-	{ NOTHING,  400 },
-	{ DOWN,      50 }, // Return to Pondo after running away
-	{ RIGHT,     70 },
-	{ DOWN,       5 },
+	{ DOWN,      10 }, // Return to snowball
+	{ NOTHING,   20 },
+	{ A,          5 }, // Pick up snowball
+	{ NOTHING,   50 },
+	{ UP,        10 },
+	{ THROW,     25 },
 
+  // Back at main flow
 	{ NOTHING,  275 }, // Ater throw wait
 	{ B,          5 },
 	{ NOTHING,   20 },
 	{ B,          5 },
-	{ NOTHING,  300 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,  400 }, // To the rewards
 	{ B,          5 },
 	{ NOTHING,  100 }, // Rupee prize dialog
 	{ B,          5 },
@@ -119,7 +131,7 @@ static const command step[] = {
 	{ NOTHING,   15 },
 	{ B,          5 },
 	{ NOTHING,   20 },
-	{ A,          5 },
+	{ B,          5 },
 	{ NOTHING,  225 }, // Wait for Pondo to walk back to the snowball
 };
 
