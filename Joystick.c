@@ -81,36 +81,38 @@ static const command step[] = {
 	{ A,          5 }, // <Continue>
 	{ NOTHING,  150 }, // Pondo walks away
 
-	// Pick up Snowball
+	// Pick up Snowball (Or alternatively, run to bail in case of a non-strike)
 	{ A,          5 },
 	{ NOTHING,   50 },
 	{ LEFT,      42 },
 	{ UP,        80 },
 	{ THROW,     25 },
 
-	// Runs if it failed to get a strike and moves back to Pondo
+	// Non-strike alternative flow, cancel bail and rethrow
 	{ NOTHING,   30 },
 	{ B,          5 },
 	{ NOTHING,   20 },
-	{ B,          5 }, // I have to split dialogue (We're not splitting)
+	{ B,          5 }, // I have to split dialogue (It's nothing)
 	{ NOTHING,   15 },
 	{ B,          5 },
 	{ NOTHING,   20 },
 	{ B,          5 },
-	{ NOTHING,  600 },
+	{ NOTHING,  450 },
 	{ B,          5 }, // Snowly moly... there are rules!
 	{ NOTHING,   20 },
 	{ B,          5 },
 	{ NOTHING,   20 },
+	{ B,          5 }, // Second dialogue
+	{ NOTHING,   20 },
 	{ DOWN,      10 }, // Return to snowball
 	{ NOTHING,   20 },
-	{ A,          5 }, // Pick up snowball
+	{ A,          5 }, // Pick up snowball, we just aimlessly throw it
 	{ NOTHING,   50 },
 	{ UP,        10 },
 	{ THROW,     25 },
 
   // Back at main flow
-	{ NOTHING,  275 }, // Ater throw wait
+	{ NOTHING,  175 }, // Ater throw wait
 	{ B,          5 },
 	{ NOTHING,   20 },
 	{ B,          5 },
@@ -122,17 +124,58 @@ static const command step[] = {
 	{ B,          5 },
 	{ NOTHING,   20 },
 	{ B,          5 },
-	{ NOTHING,  400 }, // To the rewards
-	{ B,          5 },
-	{ NOTHING,  100 }, // Rupee prize dialog
-	{ B,          5 },
-	{ NOTHING,  125 }, // Money requires counting
-	{ B,          5 }, // I'll pass
-	{ NOTHING,   15 },
+	{ NOTHING,   20 },
 	{ B,          5 },
 	{ NOTHING,   20 },
 	{ B,          5 },
-	{ NOTHING,  225 }, // Wait for Pondo to walk back to the snowball
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,  100 }, // To the rewards
+	
+	{ B,          5 }, // Wait for 450 cycles by bashing B (Like real players do!)
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 } // Saving, intermission
 };
 
 // Main entry point.
