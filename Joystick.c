@@ -37,15 +37,15 @@ typedef enum {
 } Buttons_t;
 
 typedef struct {
-  Buttons_t button;
-  uint16_t duration;
+	Buttons_t button;
+	uint16_t duration;
 } command; 
 
 static const command step[] = {
-  // Setup controller
-  { NOTHING,  250 },
-  { TRIGGERS,  	5 },
-  {	NOTHING,  150 },
+	// Setup controller
+	{ NOTHING,  250 },
+	{ TRIGGERS,   5 },
+	{ NOTHING,  150 },
 	{ TRIGGERS,   5 },
 	{ NOTHING,  150 },
 	{ A,          5 },
@@ -65,7 +65,7 @@ static const command step[] = {
 	{ B,          5 },
 	{ NOTHING,   20 }, // Aha! Play bells are ringing! I gotta set up the pins, but I'll be back in a flurry
 	{ A,          5 }, // <Continue>
-	{ NOTHING,  325 }, // Cut to different scene (Knock 'em flat!) (TODO)
+	{ NOTHING,  325 }, // Cut to different scene (Knock 'em flat!)
 	{ B,          5 },
 	{ NOTHING,   20 },
 	{ A,          5 }, // <Continue> // Camera transition takes place after this
@@ -111,7 +111,7 @@ static const command step[] = {
 	{ UP,        10 },
 	{ THROW,     25 },
 
-  // Back at main flow
+	// Back at main flow
 	{ NOTHING,  175 }, // Ater throw wait
 	{ B,          5 },
 	{ NOTHING,   20 },
@@ -138,7 +138,15 @@ static const command step[] = {
 	{ B,          5 },
 	{ NOTHING,   20 },
 	{ B,          5 },
-	{ NOTHING,  100 }, // To the rewards
+	{ NOTHING,   20 }, // To the rewards
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
 	
 	{ B,          5 }, // Wait for 450 cycles by bashing B (Like real players do!)
 	{ NOTHING,   20 },
