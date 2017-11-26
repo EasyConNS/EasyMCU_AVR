@@ -18,12 +18,6 @@ exception of Home and Capture. Descriptor modification allows us to unlock
 these buttons for our use.
 */
 
-/** \file
- *
- *  Main source file for the posts printer demo. This file contains the main tasks of
- *  the demo and is responsible for the initial application hardware configuration.
- */
-
 #include "Joystick.h"
 
 typedef enum {
@@ -42,132 +36,155 @@ typedef enum {
 	TRIGGERS
 } Buttons_t;
 
+typedef struct {
+	Buttons_t button;
+	uint16_t duration;
+} command; 
 
-
-
-
-
-static const Buttons_t buf[] = {
-
+static const command step[] = {
 	// Setup controller
-
-	NOTHING,
-	TRIGGERS,
-	NOTHING,
-	TRIGGERS,
-	NOTHING,
-	A,
-	NOTHING,
+	{ NOTHING,  250 },
+	{ TRIGGERS,   5 },
+	{ NOTHING,  150 },
+	{ TRIGGERS,   5 },
+	{ NOTHING,  150 },
+	{ A,          5 },
+	{ NOTHING,  250 },
 
 	// Talk to Pondo
+	{ A,          5 }, // Start
+	{ NOTHING,   30 },
+	{ B,          5 }, // Quick output of text
+	{ NOTHING,   20 }, // Halloo, kiddums!
+	{ A,          5 }, // <- I'll try it!
+	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ A,          5 }, // <- OK!
+	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,   20 }, // Aha! Play bells are ringing! I gotta set up the pins, but I'll be back in a flurry
+	{ A,          5 }, // <Continue>
+	{ NOTHING,  325 }, // Cut to different scene (Knock 'em flat!)
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ A,          5 }, // <Continue> // Camera transition takes place after this
+	{ NOTHING,   50 },
+	{ B,          5 },
+	{ NOTHING,   20 }, // If you can knock over all 10 pins in one roll, that's a strike
+	{ A,          5 }, // <Continue>
+	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,   20 }, // A spare is...
+	{ A,          5 }, // <Continue>
+	{ NOTHING,  100 }, // Well, good luck
+	{ A,          5 }, // <Continue>
+	{ NOTHING,  150 }, // Pondo walks away
 
-	A,			// 5
-	NOTHING, 	// 150
-	A, 			// 5
-	NOTHING,	// 300
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 150
-	A,			// 5
-	NOTHING,	// 1000
+	// Pick up Snowball (Or alternatively, run to bail in case of a non-strike)
+	{ A,          5 },
+	{ NOTHING,   50 },
+	{ LEFT,      42 },
+	{ UP,        80 },
+	{ THROW,     25 },
 
-	// Pick up Snowball
+	// Non-strike alternative flow, cancel bail and rethrow
+	{ NOTHING,   30 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 }, // I have to split dialogue (It's nothing)
+	{ NOTHING,   15 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,  450 },
+	{ B,          5 }, // Snowly moly... there are rules!
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 }, // Second dialogue
+	{ NOTHING,   20 },
+	{ DOWN,      10 }, // Return to snowball
+	{ NOTHING,   20 },
+	{ A,          5 }, // Pick up snowball, we just aimlessly throw it
+	{ NOTHING,   50 },
+	{ UP,        10 },
+	{ THROW,     25 },
 
-	A,
-	LEFT,
-	UP,
-	THROW,
-	NOTHING,
-	A,
-	NOTHING,
-	A,
-	NOTHING,
-	A,
-	NOTHING,
-	A,
-	NOTHING,
-	B,
-	NOTHING,
-	A,
-	NOTHING
-
+	// Back at main flow
+	{ NOTHING,  175 }, // Ater throw wait
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 }, // To the rewards
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	
+	{ B,          5 }, // Wait for 450 cycles by bashing B (Like real players do!)
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 },
+	{ B,          5 },
+	{ NOTHING,   20 } // Saving, intermission
 };
-
-
-
-
-
-
-
-
-
-
-
-
-static const uint16_t duration[] = {
-
-	// Setup controller
-
-	250,
-	5,
-	150,
-	5,
-	150,
-	5,
-	250,
-
-	// Talk to Pondo
-
-	5,
-	150,
-	5,
-	300,
-	5,
-	150,
-	5,
-	300,
-	5,
-	150,
-	5,
-	150,
-	5,
-	150,
-	5,
-	150,
-	5,
-	500,
-
-	// Pick up Snowball
-
-	20,
-	64,
-	55,
-	25,
-	1000,
-	5,
-	500,
-	5,
-	300,
-	5,
-	300,
-	5,
-	300,
-	5,
-	300,
-	5,
-	1000
-
-};
-
 
 // Main entry point.
 int main(void) {
@@ -374,7 +391,7 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
 		case PROCESS:
 
-			switch (buf[bufindex])
+			switch (step[bufindex].button)
 			{
 
 				case UP:
@@ -425,14 +442,14 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
 			duration_count++;
 
-			if (duration_count > duration[bufindex])
+			if (duration_count > step[bufindex].duration)
 			{
 				bufindex++;
 				duration_count = 0;				
 			}
 
 
-			if (bufindex > (int)( sizeof(buf) / sizeof(buf[0])) - 1)
+			if (bufindex > (int)( sizeof(step) / sizeof(step[0])) - 1)
 			{
 
 				// state = CLEANUP;
