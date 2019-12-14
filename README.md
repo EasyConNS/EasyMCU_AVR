@@ -46,3 +46,10 @@ Click load Hex File, select Joystick.hex and press run
 After that you should be able to plug it into the switch and watch it go!
 
 Good Luck! If you have instructions on other platforms please let me know and I will update this!
+
+Check Releases for the Joystick.hex
+
+If you want to compile this yourself, download this:
+https://www.microchip.com/mplab/avr-support/avr-and-arm-toolchains-c-compilers
+
+Add it to your path, direct yourself to the project folder and run make
