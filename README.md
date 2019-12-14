@@ -43,6 +43,10 @@ Click Open Communication Medium, click open
 
 Click load Hex File, select Joystick.hex and press run
 
+In the game, fly to the daycare in the wild area. 
+
+Make sure your party is full, and the town map is in the bottom right corner of your menu
+
 After that you should be able to plug it into the switch and watch it go!
 
 Good Luck! If you have instructions on other platforms please let me know and I will update this!
