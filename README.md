@@ -51,9 +51,7 @@ After that you should be able to plug it into the switch and watch it go!
 
 Good Luck! If you have instructions on other platforms please let me know and I will update this!
 
-Check Releases for the Joystick.hex
-
-A note: The above is timed with oval charm, flame body, and hatching magikarp. I will make different versions later to save everyone else the trouble of dealing with it, but for now, mileage may vary
+Check Releases for the various hex files. I recently added different step counts to the releases page. Go grab whatever hex file you need and start hatching!
 
 If you want to compile this yourself, download this:
 https://www.microchip.com/mplab/avr-support/avr-and-arm-toolchains-c-compilers
