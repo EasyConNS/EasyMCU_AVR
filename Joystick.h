@@ -48,6 +48,7 @@
 #include <LUFA/Drivers/Board/Joystick.h>
 #include <LUFA/Drivers/Board/LEDs.h>
 #include <LUFA/Drivers/Board/Buttons.h>
+#include <LUFA/Drivers/Peripheral/Serial.h>
 #include <LUFA/Platform/Platform.h>
 
 #include "Descriptors.h"
@@ -117,6 +118,10 @@ void EVENT_USB_Device_Connect(void);
 void EVENT_USB_Device_Disconnect(void);
 void EVENT_USB_Device_ConfigurationChanged(void);
 void EVENT_USB_Device_ControlRequest(void);
+// Process data from serial port.
+void Serial_Task(void);
+// Reset report to default.
+void ResetReport(void);
 // Prepare the next report for the host.
 void GetNextReport(USB_JoystickReport_Input_t* const ReportData);
 
