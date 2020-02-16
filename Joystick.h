@@ -42,6 +42,7 @@
 #include <avr/power.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/eeprom.h>
 #include <string.h>
 
 #include <LUFA/Drivers/USB/USB.h>
@@ -118,11 +119,19 @@ void EVENT_USB_Device_Connect(void);
 void EVENT_USB_Device_Disconnect(void);
 void EVENT_USB_Device_ConfigurationChanged(void);
 void EVENT_USB_Device_ControlRequest(void);
-// Process data from serial port.
-void Serial_Task(void);
 // Reset report to default.
 void ResetReport(void);
 // Prepare the next report for the host.
 void GetNextReport(USB_JoystickReport_Input_t* const ReportData);
+// Process data from serial port.
+void Serial_Task(void);
+// Initialize script.
+void Script_Init(void);
+// Run local script.
+void Script_Start(void);
+// Stop local script.
+void Script_Stop(void);
+// Process local script instructions.
+void Script_Task(void);
 
 #endif
