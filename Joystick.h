@@ -46,9 +46,9 @@
 #include <string.h>
 
 #include <LUFA/Drivers/USB/USB.h>
-#include <LUFA/Drivers/Board/Joystick.h>
+//#include <LUFA/Drivers/Board/Joystick.h>
 #include <LUFA/Drivers/Board/LEDs.h>
-#include <LUFA/Drivers/Board/Buttons.h>
+//#include <LUFA/Drivers/Board/Buttons.h>
 #include <LUFA/Drivers/Peripheral/Serial.h>
 #include <LUFA/Platform/Platform.h>
 
@@ -127,11 +127,23 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData);
 void Serial_Task(void);
 // Initialize script.
 void Script_Init(void);
+// Run script on startup.
+void Script_AutoStart(void);
 // Run local script.
 void Script_Start(void);
 // Stop local script.
 void Script_Stop(void);
 // Process local script instructions.
 void Script_Task(void);
+// Binary operations
+void BinaryOp(uint8_t op, uint8_t reg, int16_t value);
+#if (BOARD == BOARD_LEONARDO)
+#define LEDMASK_TX LEDS_LED2
+#define LEDMASK_RX LEDS_LED1
+#endif
+// LED control
+void BlinkLED(void);
+// Serial_SendByte wrapper
+void Serial_Send(const char DataByte);
 
 #endif
