@@ -783,9 +783,6 @@ void Script_Task(void)
                                 {
                                     // small number
                                     FOR_C(_forstackindex - 1) = _ins & ((1 << 10) - 1);
-                                    // fill sign bit
-                                    FOR_C(_forstackindex - 1) <<= 22;
-                                    FOR_C(_forstackindex - 1) >>= 22;
                                     if (FOR_C(_forstackindex - 1) == 0)
                                     {
                                         // infinite loop
@@ -796,9 +793,6 @@ void Script_Task(void)
                                 {
                                     // large number
                                     FOR_C(_forstackindex - 1) = _insEx & ((1L << 26) - 1);
-                                    // fill sign bit
-                                    FOR_C(_forstackindex - 1) <<= 6;
-                                    FOR_C(_forstackindex - 1) >>= 6;
                                 }
                             }
                         }
