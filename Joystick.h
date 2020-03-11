@@ -44,6 +44,7 @@
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <LUFA/Drivers/USB/USB.h>
 //#include <LUFA/Drivers/Board/Joystick.h>
@@ -53,6 +54,19 @@
 #include <LUFA/Platform/Platform.h>
 
 #include "Descriptors.h"
+
+// Hardware Variations
+#if (BOARD == BOARD_UNO)
+    #define MEM_SIZE 400
+#elif (BOARD == BOARD_LEONARDO)
+    #define MEM_SIZE 900
+    #define LEDMASK_TX LEDS_LED2
+    #define LEDMASK_RX LEDS_LED1
+#elif (BOARD == BOARD_TEENSY2)
+    #define MEM_SIZE 900
+    #define LEDMASK_TX 0
+    #define LEDMASK_RX 0
+#endif
 
 // Type Defines
 // Enumeration for joystick buttons.
@@ -137,10 +151,6 @@ void Script_Stop(void);
 void Script_Task(void);
 // Binary operations
 void BinaryOp(uint8_t op, uint8_t reg, int16_t value);
-#if (BOARD == BOARD_LEONARDO)
-#define LEDMASK_TX LEDS_LED2
-#define LEDMASK_RX LEDS_LED1
-#endif
 // LED control
 void BlinkLED(void);
 // Serial_SendByte wrapper

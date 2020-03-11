@@ -21,18 +21,21 @@ these buttons for our use.
 #include "Joystick.h"
 
 // constants
-#define VERSION 0x43
-// the echo min is 5,less than it would be instable
-#define ECHO 5
+#define VERSION 0x44
+#define ECHO_TIMES 3
+#define ECHO_INTERVAL 5
 #define LED_DURATION 50
 #define SERIAL_BUFFER_SIZE 20
+#define DIRECTION_OFFSET 20
+#define VARSPACE_OFFSET 90
+#define KEYCODE_OFFSET 90
 #define KEYCODE_MAX 33
-#define REGISTER_OFFSET 60
-#define STACK_OFFSET 80
-#define CALLSTACK_OFFSET 120
-#define FORSTACK_OFFSET 180
-#define DIRECTION_OFFSET 300
+#define REGISTER_OFFSET 130
+#define STACK_OFFSET 150
+#define CALLSTACK_OFFSET 190
+#define FORSTACK_OFFSET 250
 #define INS_OFFSET 370
+#define SEED_OFFSET MEM_SIZE + 0
 
 // serial protocal control bytes and replies
 #define CMD_READY 0xA5
@@ -54,7 +57,7 @@ these buttons for our use.
 #define Max(a, b) ((a > b) ? (a) : (b))
 #define Min(a, b) ((a < b) ? (a) : (b))
 #define SERIAL_BUFFER(i) mem[(i)]
-#define KEY(keycode) mem[SERIAL_BUFFER_SIZE+(keycode)]
+#define KEY(keycode) mem[KEYCODE_OFFSET+(keycode)]
 #define REG(i) *(int16_t*)(mem+REGISTER_OFFSET+((i)<<1))
 #define STACK(i) *(int16_t*)(mem+STACK_OFFSET+((i)<<1))
 #define CALLSTACK(i) *(uint16_t*)(mem+CALLSTACK_OFFSET+((i)<<1))
@@ -64,7 +67,7 @@ these buttons for our use.
 #define FOR_C(i) *(int32_t*)(mem+FORSTACK_OFFSET+(i)*12+4)
 #define FOR_ADDR(i) *(uint16_t*)(mem+FORSTACK_OFFSET+(i)*12+8)
 #define FOR_NEXT(i) *(uint16_t*)(mem+FORSTACK_OFFSET+(i)*12+10)
-#define SETWAIT(time) script_nexttime=timer_ms+(time)
+#define SETWAIT(time) wait_ms=(time)
 #define RESETAFTER(keycode,n) KEY(keycode)=n
 #define JUMP(addr) script_addr = (uint8_t*)(addr)
 #define JUMPNEAR(addr) script_addr = (uint8_t*)((uint16_t)script_addr + (addr))
@@ -95,9 +98,10 @@ these buttons for our use.
 #define _ri1 mem[INS_OFFSET+20]
 #define _v mem[INS_OFFSET+21]
 #define _flag mem[INS_OFFSET+22]
+#define _seed *(uint16_t*)(mem+INS_OFFSET+23)
 
-// All variables other than mem must have default values. Otherwise EasyCon cannot locate the data segment.
-uint8_t mem[400] = {0xFF, 0xFF, VERSION};   // preallocated memory for all purposes, as well as static instruction carrier
+// global variables
+uint8_t mem[MEM_SIZE] = {0xFF, 0xFF, VERSION};   // preallocated memory for all purposes, as well as static instruction carrier
 size_t serial_buffer_length = 0;                      // current length of serial buffer
 bool serial_command_ready = false;             // CMD_READY acknowledged, ready to receive command byte
 uint8_t* flash_addr = 0;                                // start location for EEPROM flashing
@@ -105,10 +109,14 @@ uint16_t flash_index = 0;                               // current buffer index
 uint16_t flash_count = 0;                               // number of bytes expected for this time
 uint8_t* script_addr = 0;                               // address of next instruction
 uint8_t* script_eof = 0;                                 // address of EOF
-uint32_t script_nexttime = 0;                         // run next instruction after timer_ms reaches this
 uint16_t tail_wait = 0;                                   // insert an extra wait before next instruction (used by compressed instruction)
 uint32_t timer_elapsed = 0;                          // previous execution time
-uint8_t led_counter = 0;                               // transmission led countdown
+
+// timers
+volatile uint32_t timer_ms = 0;                      // script timer
+volatile uint8_t echo_ms = 0;                        // echo counter
+volatile uint32_t wait_ms = 0;                       // waiting counter
+volatile uint8_t led_ms = 0;                          // transmission LED countdown
 
 // Main entry point.
 int main(void)
@@ -152,10 +160,10 @@ void SetupHardware(void)
     
     // Initialize timer interrupt
     TIMSK0 |= (1 << TOIE0);
-    sei();
     //enable interrupts
-    TCCR0B |= (1 << CS01) | (1 << CS00);
+    sei();
     // set prescaler to 64 and start the timer
+    TCCR0B |= (1 << CS01) | (1 << CS00);
     
     // We can then initialize our hardware and peripherals, including the USB stack.
     
@@ -169,15 +177,25 @@ void SetupHardware(void)
     Script_AutoStart();
 }
 
-volatile uint32_t timer_ms = 0;
 ISR (TIMER0_OVF_vect) // timer0 overflow interrupt
 {
-    TCNT0 += 6;
     // add 6 to the register (our work around)
+    TCNT0 += 6;
+    // increment timer
     timer_ms++;
-    led_counter--;
-    if (led_counter == 0)
-        LEDs_TurnOffLEDs(LEDMASK_TX);
+    // decrement echo counter
+    if (echo_ms != 0)
+        echo_ms--;
+    // decrement waiting counter
+    if (wait_ms != 0 && (_report_echo == 0 || wait_ms > 5))
+        wait_ms--;
+    // decrement LED counter
+    if (led_ms != 0)
+    {
+        led_ms--;
+        if (led_ms == 0)
+            LEDs_TurnOffLEDs(LEDMASK_TX);
+    }
 }
 
 // Fired to indicate that the device is enumerating.
@@ -221,7 +239,7 @@ void HID_Task(void)
         return;
 
     // [Optimized] We don't need to receive data at all.
-    if (false)
+    if (true)
     {
         // We'll start with the OUT endpoint.
         Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
@@ -229,7 +247,7 @@ void HID_Task(void)
         if (Endpoint_IsOUTReceived())
         {
             // If we did, and the packet has data, we'll react to it.
-            if (Endpoint_IsReadWriteAllowed())
+            if (false && Endpoint_IsReadWriteAllowed())
             {
                 // We'll create a place to store our data received from the host.
                 USB_JoystickReport_Output_t JoystickOutputData;
@@ -245,7 +263,7 @@ void HID_Task(void)
     }
     
     // [Optimized] Only send data when changed.
-    if (_report_echo && (!_script_running || timer_ms + 10 < script_nexttime))
+    if (echo_ms == 0 && _report_echo)
     {
         // We'll then move on to the IN endpoint.
         Endpoint_SelectEndpoint(JOYSTICK_IN_EPADDR);
@@ -253,11 +271,17 @@ void HID_Task(void)
         if (Endpoint_IsINReady())
         {
             // Once populated, we can output this data to the host. We do this by first writing the data to the control stream.
-            while(Endpoint_Write_Stream_LE(&next_report, sizeof(next_report), NULL) != ENDPOINT_RWSTREAM_NoError);
-            // We then send an IN packet on this endpoint.
-            Endpoint_ClearIN();
+            if(Endpoint_Write_Stream_LE(&next_report, sizeof(next_report), NULL) == ENDPOINT_RWSTREAM_NoError)
+            {
+                // We then send an IN packet on this endpoint.
+                Endpoint_ClearIN();
+                // decrement echo counter
+                if (!_script_running || _report_echo > 1 || wait_ms < 10)
+                    _report_echo--;
+                // set interval
+                echo_ms = ECHO_INTERVAL;
+            }
         }
-        _report_echo--;
     }
 }
 
@@ -270,7 +294,7 @@ void ResetReport(void)
     next_report.RX = STICK_CENTER;
     next_report.RY = STICK_CENTER;
     next_report.HAT = HAT_CENTER;
-    _report_echo = ECHO;
+    _report_echo = ECHO_TIMES;
 }
 
 // Process data from serial port.
@@ -327,7 +351,7 @@ void Serial_Task(void)
                         next_report.RX = (uint8_t)((SERIAL_BUFFER(5) << 6) | (SERIAL_BUFFER(6) >> 1));
                         next_report.RY = (uint8_t)((SERIAL_BUFFER(6) << 7) | (SERIAL_BUFFER(7) & 0x7f));
                         // set flag
-                        _report_echo = ECHO;
+                        _report_echo = ECHO_TIMES;
                         // send ACK
                         Serial_Send(REPLY_ACK);
                     }
@@ -435,9 +459,16 @@ void Script_Init(void)
         // flash instructions from firmware
         int len = mem[0] | ((mem[1] & 0b01111111) << 8);
         for (int i = 0; i < len; i++)
-            eeprom_write_byte((uint8_t*)i, mem[i]);
+            if (eeprom_read_byte((uint8_t*)i) != mem[i])
+                eeprom_write_byte((uint8_t*)i, mem[i]);
     }
     memset(mem, 0, sizeof(mem));
+    
+    // randomize
+    _seed = eeprom_read_word((uint16_t*)SEED_OFFSET) + 1;
+    srand(_seed);
+    eeprom_write_word((uint16_t*)SEED_OFFSET, _seed);
+    
     // calculate direction presets
     for (int i = 0; i < 16; i++)
     {
@@ -472,21 +503,19 @@ void Script_AutoStart(void)
 // Run script.
 void Script_Start(void)
 {
-    _script_running = 1;
     script_addr = (uint8_t*)2;
     uint16_t eof = eeprom_read_byte((uint8_t*)0) | (eeprom_read_byte((uint8_t*)1) << 8);
     if (eof == 0xFFFF)
         eof = 0;
     script_eof = (uint8_t*)(eof & 0x7FFF);
-    script_nexttime = 0;
-    timer_ms = 0;
     // reset variables
-    for (int i = 0; i <= KEYCODE_MAX; i++)
-        KEY(i) = 0;
-    _stackindex = 0;
-    _forstackindex = 0;
+    wait_ms = 0;
+    echo_ms = 0;
+    timer_ms = 0;
     tail_wait = 0;
-    _e_set = false;
+    memset(mem + VARSPACE_OFFSET, 0, sizeof(mem) - VARSPACE_OFFSET);
+    _script_running = 1;
+    _seed = eeprom_read_word((uint16_t*)SEED_OFFSET);
     LEDs_TurnOnLEDs(LEDMASK_RX);
 }
 
@@ -507,8 +536,8 @@ void Script_Task(void)
         // status check
         if (!_script_running)
             return;
-        // time check
-        if (timer_ms < script_nexttime)
+        // timer check
+        if (wait_ms > 0)
             return;
         // release keys
         for (int i = 0; i <= KEYCODE_MAX; i++)
@@ -523,26 +552,26 @@ void Script_Task(void)
                         // LS
                         next_report.LX = STICK_CENTER;
                         next_report.LY = STICK_CENTER;
-                        _report_echo = ECHO;
+                        _report_echo = ECHO_TIMES;
                     }
                     else if (i == 33)
                     {
                         // RS
                         next_report.RX = STICK_CENTER;
                         next_report.RY = STICK_CENTER;
-                        _report_echo = ECHO;
+                        _report_echo = ECHO_TIMES;
                     }
                     else if ((i & 0x10) == 0)
                     {
                         // Button
                         next_report.Button &= ~(1 << i);
-                        _report_echo = ECHO;
+                        _report_echo = ECHO_TIMES;
                     }
                     else
                     {
                         // HAT
                         next_report.HAT = HAT_CENTER;
-                        _report_echo = ECHO;
+                        _report_echo = ECHO_TIMES;
                     }
                 }
             }
@@ -577,13 +606,13 @@ void Script_Task(void)
                 {
                     // Button
                     next_report.Button |= 1 << _keycode;
-                    _report_echo = ECHO;
+                    _report_echo = ECHO_TIMES;
                 }
                 else
                 {
                     // HAT
                     next_report.HAT = _keycode & 0xF;
-                    _report_echo = ECHO;
+                    _report_echo = ECHO_TIMES;
                 }
                 // post effect
                 if (E_SET)
@@ -629,14 +658,14 @@ void Script_Task(void)
                     // RS
                     next_report.RX = DX(_direction);
                     next_report.RY = DY(_direction);
-                    _report_echo = ECHO;
+                    _report_echo = ECHO_TIMES;
                 }
                 else
                 {
                     // LS
                     next_report.LX = DX(_direction);
                     next_report.LY = DY(_direction);
-                    _report_echo = ECHO;
+                    _report_echo = ECHO_TIMES;
                 }
                 // post effect
                 if (E_SET)
@@ -1020,6 +1049,18 @@ void Script_Task(void)
                                     break;
                                 REG(_ri0) = (bool)REG(_ri0);
                                 break;
+                            case 0b1001:
+                                // Instruction : Rand
+                                if (_ri0 == 0)
+                                    break;
+                                if (!_seed)
+                                {
+                                    _seed = timer_ms;
+                                    eeprom_write_word((uint16_t*)SEED_OFFSET, _seed);
+                                    srand(_seed);
+                                }
+                                REG(_ri0) = rand() % REG(_ri0);
+                                break;
                         }
                     }
                     break;
@@ -1100,7 +1141,7 @@ void BinaryOp(uint8_t op, uint8_t reg, int16_t value)
 
 void BlinkLED(void)
 {
-    led_counter = LED_DURATION;
+    led_ms = LED_DURATION;
     LEDs_TurnOnLEDs(LEDMASK_TX);
 }
 
