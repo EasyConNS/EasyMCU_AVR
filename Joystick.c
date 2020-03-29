@@ -23,7 +23,7 @@ these buttons for our use.
 // constants
 #define VERSION 0x44
 #define ECHO_TIMES 3
-#define ECHO_INTERVAL 5
+#define ECHO_INTERVAL 2
 #define LED_DURATION 50
 #define SERIAL_BUFFER_SIZE 20
 #define DIRECTION_OFFSET 20
@@ -187,7 +187,7 @@ ISR (TIMER0_OVF_vect) // timer0 overflow interrupt
     if (echo_ms != 0)
         echo_ms--;
     // decrement waiting counter
-    if (wait_ms != 0 && (_report_echo == 0 || wait_ms > 5))
+    if (wait_ms != 0 && (_report_echo == 0 || wait_ms >1))
         wait_ms--;
     // decrement LED counter
     if (led_ms != 0)
@@ -263,7 +263,7 @@ void HID_Task(void)
     }
     
     // [Optimized] Only send data when changed.
-    if (echo_ms == 0 && _report_echo)
+    if (echo_ms == 0)
     {
         // We'll then move on to the IN endpoint.
         Endpoint_SelectEndpoint(JOYSTICK_IN_EPADDR);
@@ -276,8 +276,10 @@ void HID_Task(void)
                 // We then send an IN packet on this endpoint.
                 Endpoint_ClearIN();
                 // decrement echo counter
-                if (!_script_running || _report_echo > 1 || wait_ms < 10)
-                    _report_echo--;
+                if (!_script_running || _report_echo > 1 || wait_ms < 2)
+				{
+                    _report_echo = Max(0,_report_echo--);
+                }
                 // set interval
                 echo_ms = ECHO_INTERVAL;
             }
@@ -540,6 +542,7 @@ void Script_Task(void)
         if (wait_ms > 0)
             return;
         // release keys
+        BlinkLED();
         for (int i = 0; i <= KEYCODE_MAX; i++)
         {
             if (KEY(i) != 0)

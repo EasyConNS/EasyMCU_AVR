@@ -130,7 +130,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
 			.EndpointAddress        = JOYSTICK_IN_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 			.EndpointSize           = JOYSTICK_EPSIZE,
-			.PollingIntervalMS      = 0x05
+			.PollingIntervalMS      = 0x01
 		},
 
 	.HID_ReportOUTEndpoint =
@@ -140,7 +140,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
 			.EndpointAddress        = JOYSTICK_OUT_EPADDR,
 			.Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
 			.EndpointSize           = JOYSTICK_EPSIZE,
-			.PollingIntervalMS      = 0x05
+			.PollingIntervalMS      = 0x01
 		},
 };
 
@@ -148,8 +148,8 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
 const USB_Descriptor_String_t PROGMEM LanguageString = USB_STRING_DESCRIPTOR_ARRAY(LANGUAGE_ID_ENG);
 
 // Manufacturer and Product Descriptor Strings
-const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(L"HORI CO.,LTD.");
-const USB_Descriptor_String_t PROGMEM ProductString      = USB_STRING_DESCRIPTOR(L"POKKEN CONTROLLER");
+const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(L"ELMAGNIFICO");
+const USB_Descriptor_String_t PROGMEM ProductString      = USB_STRING_DESCRIPTOR(L"MCU CONTROLLER");
 
 // USB Device Callback - Get Descriptor
 uint16_t CALLBACK_USB_GetDescriptor(
