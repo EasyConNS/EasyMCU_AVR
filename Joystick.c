@@ -21,7 +21,7 @@ these buttons for our use.
 #include "Joystick.h"
 
 // constants
-#define VERSION 0x44
+#define VERSION 0x45
 #define ECHO_TIMES 3
 #define ECHO_INTERVAL 2
 #define LED_DURATION 50
