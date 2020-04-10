@@ -132,11 +132,17 @@ int main(void)
         HID_Task();
         // We also need to run the main USB management task.
         USB_USBTask();
-        // Manage data from/to serial port.
-        Serial_Task();
         // Process local script instructions.
         Script_Task();
     }
+}
+
+inline void disable_rx_isr(void) {
+	UCSR1B &= ~_BV(RXCIE1);
+}
+
+inline void enable_rx_isr(void) {
+	UCSR1B |= _BV(RXCIE1);
 }
 
 // Configures hardware and peripherals, such as the USB peripherals.
@@ -171,10 +177,15 @@ void SetupHardware(void)
     USB_Init();
     
     // Initialize serial port.
-    Serial_Init(9600, false);
-    
+    Serial_Init(115200, false);
+	enable_rx_isr();
+	
     // Start script.
     Script_AutoStart();
+}
+
+ISR(USART1_RX_vect) {
+	Serial_Task(Serial_ReceiveByte());
 }
 
 ISR (TIMER0_OVF_vect) // timer0 overflow interrupt
@@ -276,9 +287,9 @@ void HID_Task(void)
                 // We then send an IN packet on this endpoint.
                 Endpoint_ClearIN();
                 // decrement echo counter
-                if (!_script_running || _report_echo > 1 || wait_ms < 2)
+                if (!_script_running || _report_echo > 0 || wait_ms < 2)
 				{
-                    _report_echo = Max(0,_report_echo--);
+                    _report_echo = Max(0,_report_echo-1);
                 }
                 // set interval
                 echo_ms = ECHO_INTERVAL;
@@ -300,156 +311,151 @@ void ResetReport(void)
 }
 
 // Process data from serial port.
-void Serial_Task(void)
+void Serial_Task(int16_t byte)
 {
-    // read all incoming bytes
-    while (true)
+    if (byte < 0)
+        return;
+    BlinkLED();
+    if (flash_index < flash_count)
     {
-        // read next byte
-        int16_t byte = Serial_ReceiveByte();
-        if (byte < 0)
-            break;
-        BlinkLED();
-        if (flash_index < flash_count)
+        // flashing
+        SERIAL_BUFFER(flash_index) = byte;
+        flash_index++;
+        if (flash_index == flash_count)
         {
-            // flashing
-            SERIAL_BUFFER(flash_index) = byte;
-            flash_index++;
-            if (flash_index == flash_count)
-            {
-                // all bytes received
-                for (flash_index = 0; flash_index < flash_count; flash_index++, flash_addr++)
-                    eeprom_write_byte(flash_addr, SERIAL_BUFFER(flash_index));
-                Serial_Send(REPLY_FLASHEND);
-            }
+            // all bytes received
+            for (flash_index = 0; flash_index < flash_count; flash_index++, flash_addr++)
+                eeprom_write_byte(flash_addr, SERIAL_BUFFER(flash_index));
+            Serial_Send(REPLY_FLASHEND);
         }
-        else
+    }
+    else
+    {
+        // regular
+        SERIAL_BUFFER(serial_buffer_length++) = byte;
+        // check control byte
+        if ((byte & 0x80) != 0)
         {
-            // regular
-            SERIAL_BUFFER(serial_buffer_length++) = byte;
-            // check control byte
-            if ((byte & 0x80) != 0)
+            if (serial_buffer_length == 1 && !serial_command_ready && byte == CMD_READY)
             {
-                if (serial_buffer_length == 1 && !serial_command_ready && byte == CMD_READY)
+                // comand ready
+                serial_command_ready = true;
+            }
+            else if (serial_buffer_length == 8)
+            {
+                // report data
+                if (_script_running)
                 {
-                    // comand ready
-                    serial_command_ready = true;
-                }
-                else if (serial_buffer_length == 8)
-                {
-                    // report data
-                    if (_script_running)
-                    {
-                        // script running, send BUSY
-                        Serial_Send(REPLY_BUSY);
-                    }
-                    else
-                    {
-                        //memset(&next_report, 0, sizeof(USB_JoystickReport_Input_t));
-                        next_report.Button = (SERIAL_BUFFER(0) << 9) | (SERIAL_BUFFER(1) << 2) | (SERIAL_BUFFER(2) >> 5);
-                        next_report.HAT = (uint8_t)((SERIAL_BUFFER(2) << 3) | (SERIAL_BUFFER(3) >> 4));
-                        next_report.LX = (uint8_t)((SERIAL_BUFFER(3) << 4) | (SERIAL_BUFFER(4) >> 3));
-                        next_report.LY = (uint8_t)((SERIAL_BUFFER(4) << 5) | (SERIAL_BUFFER(5) >> 2));
-                        next_report.RX = (uint8_t)((SERIAL_BUFFER(5) << 6) | (SERIAL_BUFFER(6) >> 1));
-                        next_report.RY = (uint8_t)((SERIAL_BUFFER(6) << 7) | (SERIAL_BUFFER(7) & 0x7f));
-                        // set flag
-                        _report_echo = ECHO_TIMES;
-                        // send ACK
-                        Serial_Send(REPLY_ACK);
-                    }
-                    //Serial_Send(next_report.Button >> 8);
-                    //Serial_Send(next_report.Button);
-                    //Serial_Send(next_report.HAT);
-                    //Serial_Send(next_report.LX);
-                    //Serial_Send(next_report.LY);
-                    //Serial_Send(next_report.RX);
-                    //Serial_Send(next_report.RY);
-                    serial_command_ready = false;
-                }
-                else if (serial_command_ready)
-                {
-                    serial_command_ready = false;
-                    // command
-                    switch (byte)
-                    {
-                        case CMD_DEBUG:
-                            ;uint32_t n;
-                            // instruction count
-                            //uint8_t* count = (uint8_t*)(eeprom_read_byte((uint8_t*)0) | (eeprom_read_byte((uint8_t*)1) << 8));
-                            //for (uint8_t* i = 0; i < count; i++)
-                                //Serial_Send(eeprom_read_byte(i));
-                            
-                            // current loop variable
-                            n = FOR_I(_forstackindex - 1);
-                            for (int i = 0; i < 4; i++)
-                            {
-                                Serial_Send(n);
-                                n >>= 8;
-                            }
-                            
-                            // time elapsed
-                            n = timer_elapsed;
-                            for (int i = 0; i < 4; i++)
-                            {
-                                Serial_Send(n);
-                                n >>= 8;
-                            }
-                            
-                            // PC
-                            n = (uint16_t)script_addr;
-                            for (int i = 0; i < 2; i++)
-                            {
-                                Serial_Send(n);
-                                n >>= 8;
-                            }
-                            break;
-                        case CMD_VERSION:
-                            Serial_Send(VERSION);
-                            break;
-                        case CMD_READY:
-                            serial_command_ready = true;
-                            break;
-                        case CMD_HELLO:
-                            Serial_Send(REPLY_HELLO);
-                            break;
-                        case CMD_FLASH:
-                            if (serial_buffer_length != 5)
-                            {
-                                Serial_Send(REPLY_ERROR);
-                                break;
-                            }
-                            Script_Stop();
-                            flash_addr = (uint8_t*)(SERIAL_BUFFER(0) | (SERIAL_BUFFER(1) << 7));
-                            flash_count = (SERIAL_BUFFER(2) | (SERIAL_BUFFER(3) << 7));
-                            flash_index = 0;
-                            Serial_Send(REPLY_FLASHSTART);
-                            break;
-                        case CMD_SCRIPTSTART:
-                            Script_Start();
-                            Serial_Send(REPLY_SCRIPTACK);
-                            break;
-                        case CMD_SCRIPTSTOP:
-                            Script_Stop();
-                            Serial_Send(REPLY_SCRIPTACK);
-                            break;
-                        default:
-                            // error
-                            Serial_Send(REPLY_ERROR);
-                            break;
-                    }
+                    // script running, send BUSY
+                    Serial_Send(REPLY_BUSY);
                 }
                 else
                 {
-                    // error
-                    Serial_Send(serial_buffer_length);
+                    //memset(&next_report, 0, sizeof(USB_JoystickReport_Input_t));
+                    next_report.Button = (SERIAL_BUFFER(0) << 9) | (SERIAL_BUFFER(1) << 2) | (SERIAL_BUFFER(2) >> 5);
+                    next_report.HAT = (uint8_t)((SERIAL_BUFFER(2) << 3) | (SERIAL_BUFFER(3) >> 4));
+                    next_report.LX = (uint8_t)((SERIAL_BUFFER(3) << 4) | (SERIAL_BUFFER(4) >> 3));
+                    next_report.LY = (uint8_t)((SERIAL_BUFFER(4) << 5) | (SERIAL_BUFFER(5) >> 2));
+                    next_report.RX = (uint8_t)((SERIAL_BUFFER(5) << 6) | (SERIAL_BUFFER(6) >> 1));
+                    next_report.RY = (uint8_t)((SERIAL_BUFFER(6) << 7) | (SERIAL_BUFFER(7) & 0x7f));
+                    // set flag
+                    _report_echo = ECHO_TIMES;
+                    // send ACK
+					Serial_Send(REPLY_ACK);
+
                 }
-                // clear buffer
-                serial_buffer_length = 0;
+                //Serial_Send(next_report.Button >> 8);
+                //Serial_Send(next_report.Button);
+                //Serial_Send(next_report.HAT);
+                //Serial_Send(next_report.LX);
+                //Serial_Send(next_report.LY);
+                //Serial_Send(next_report.RX);
+                //Serial_Send(next_report.RY);
+                serial_command_ready = false;
             }
-            // overflow protection
-            if (serial_buffer_length >= SERIAL_BUFFER_SIZE)
-                serial_buffer_length = 0;
+            else if (serial_command_ready)
+            {
+                serial_command_ready = false;
+                // command
+                switch (byte)
+                {
+                    case CMD_DEBUG:
+                        ;uint32_t n;
+                        // instruction count
+                        //uint8_t* count = (uint8_t*)(eeprom_read_byte((uint8_t*)0) | (eeprom_read_byte((uint8_t*)1) << 8));
+                        //for (uint8_t* i = 0; i < count; i++)
+                            //Serial_Send(eeprom_read_byte(i));
+                        
+                        // current loop variable
+                        n = FOR_I(_forstackindex - 1);
+                        for (int i = 0; i < 4; i++)
+                        {
+                            Serial_Send(n);
+                            n >>= 8;
+                        }
+                        
+                        // time elapsed
+                        n = timer_elapsed;
+                        for (int i = 0; i < 4; i++)
+                        {
+                            Serial_Send(n);
+                            n >>= 8;
+                        }
+                        
+                        // PC
+                        n = (uint16_t)script_addr;
+                        for (int i = 0; i < 2; i++)
+                        {
+                            Serial_Send(n);
+                            n >>= 8;
+                        }
+                        break;
+                    case CMD_VERSION:
+                        Serial_Send(VERSION);
+                        break;
+                    case CMD_READY:
+                        serial_command_ready = true;
+                        break;
+                    case CMD_HELLO:
+                        Serial_Send(REPLY_HELLO);
+                        break;
+                    case CMD_FLASH:
+                        if (serial_buffer_length != 5)
+                        {
+                            Serial_Send(REPLY_ERROR);
+                            break;
+                        }
+                        Script_Stop();
+                        flash_addr = (uint8_t*)(SERIAL_BUFFER(0) | (SERIAL_BUFFER(1) << 7));
+                        flash_count = (SERIAL_BUFFER(2) | (SERIAL_BUFFER(3) << 7));
+                        flash_index = 0;
+                        Serial_Send(REPLY_FLASHSTART);
+                        break;
+                    case CMD_SCRIPTSTART:
+                        Script_Start();
+                        Serial_Send(REPLY_SCRIPTACK);
+                        break;
+                    case CMD_SCRIPTSTOP:
+                        Script_Stop();
+                        Serial_Send(REPLY_SCRIPTACK);
+                        break;
+                    default:
+                        // error
+                        Serial_Send(REPLY_ERROR);
+                        break;
+                }
+            }
+            else
+            {
+                // error
+                Serial_Send(serial_buffer_length);
+            }
+            // clear buffer
+            serial_buffer_length = 0;
         }
+        // overflow protection
+        if (serial_buffer_length >= SERIAL_BUFFER_SIZE)
+            serial_buffer_length = 0;
     }
 }
 
@@ -492,6 +498,7 @@ void Script_Init(void)
         DX(i) = x;
         DY(i) = y;
     }
+	_report_echo = ECHO_TIMES;
 }
 
 // Run script on startup.
@@ -537,7 +544,7 @@ void Script_Task(void)
     {
         // status check
         if (!_script_running)
-            return;
+			return;
         // timer check
         if (wait_ms > 0)
             return;

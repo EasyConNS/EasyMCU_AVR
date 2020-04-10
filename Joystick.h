@@ -126,7 +126,7 @@ void ResetReport(void);
 // Prepare the next report for the host.
 void GetNextReport(USB_JoystickReport_Input_t* const ReportData);
 // Process data from serial port.
-void Serial_Task(void);
+void Serial_Task(int16_t byte);
 // Initialize script.
 void Script_Init(void);
 // Run script on startup.
