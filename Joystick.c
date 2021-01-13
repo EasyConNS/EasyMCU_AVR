@@ -179,9 +179,6 @@ void SetupHardware(void)
     // Initialize serial port.
     Serial_Init(115200, false);
 	enable_rx_isr();
-	
-    // Start script.
-    Script_AutoStart();
 }
 
 ISR(USART1_RX_vect) {
@@ -213,6 +210,9 @@ ISR (TIMER0_OVF_vect) // timer0 overflow interrupt
 void EVENT_USB_Device_Connect(void)
 {
     // We can indicate that we're enumerating here (via status LEDs, sound, etc.).
+    
+    // Start script.
+    Script_AutoStart();
 }
 
 // Fired to indicate that the device is no longer connected to a host.
@@ -227,7 +227,7 @@ void EVENT_USB_Device_ConfigurationChanged(void)
     bool ConfigSuccess = true;
 
     // We setup the HID report endpoints.
-    ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
+    // ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_OUT_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
     ConfigSuccess &= Endpoint_ConfigureEndpoint(JOYSTICK_IN_EPADDR, EP_TYPE_INTERRUPT, JOYSTICK_EPSIZE, 1);
 
     // We can read ConfigSuccess to indicate a success or failure at this point.
@@ -250,6 +250,7 @@ void HID_Task(void)
         return;
 
     // [Optimized] We don't need to receive data at all.
+    /*
     if (true)
     {
         // We'll start with the OUT endpoint.
@@ -272,6 +273,7 @@ void HID_Task(void)
             Endpoint_ClearOUT();
         }
     }
+    */
     
     // [Optimized] Only send data when changed.
     if (echo_ms == 0)
