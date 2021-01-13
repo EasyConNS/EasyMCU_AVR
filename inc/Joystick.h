@@ -54,6 +54,7 @@
 #include <LUFA/Platform/Platform.h>
 
 #include "Descriptors.h"
+#include "Script.h"
 
 
 // Type Defines

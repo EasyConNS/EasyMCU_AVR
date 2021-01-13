@@ -15,9 +15,9 @@
 # Set the MCU accordingly to your device
 # the REAL_BOARD is the name you want xxx.hex
 # there must be a define of BOARD in LUFA
-REAL_BOARD   = Teensy2
+REAL_BOARD   = TEENSY2pp
 BOARD        = TEENSY2
-MCU          = atmega32u4
+MCU          = at90usb1286
 MEM_SIZE     = 900
 LEDMASK_TX   = LEDS_LED1
 LEDMASK_RX   = LEDS_LED1
@@ -28,7 +28,7 @@ OPTIMIZATION = s
 TARGET       = ./$(REAL_BOARD)/$(REAL_BOARD)
 SRC          = Joystick.c Descriptors.c $(LUFA_SRC_USB)
 LUFA_PATH    = ./lufa/LUFA
-CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -DMEM_SIZE=$(MEM_SIZE) -DBOARD=$(BOARD) -DLEDMASK_TX=$(LEDMASK_TX) -DLEDMASK_RX=$(LEDMASK_RX) -IConfig/ 
+CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -DMEM_SIZE=$(MEM_SIZE) -DBOARD=$(BOARD) -DLEDMASK_TX=$(LEDMASK_TX) -DLEDMASK_RX=$(LEDMASK_RX) -Iinc/
 LD_FLAGS     =
 
 $(shell mkdir ./$(REAL_BOARD))

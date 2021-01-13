@@ -10,9 +10,9 @@ for board in ${Boards[@]};
 do
 	echo $board
 	echo "make clean it" $board
-	make -f $board.mk clean
+	make -f mk/$board.mk clean
 	echo "make" $board
-	make -f $board.mk
+	make -f mk/$board.mk
 	cp -f ./$board/$board.hex  ${EasyCon_Firmware_path}/$board\ v${Version}.hex
 	echo "make" $board "completed"
 done

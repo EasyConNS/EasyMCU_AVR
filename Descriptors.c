@@ -148,7 +148,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
 const USB_Descriptor_String_t PROGMEM LanguageString = USB_STRING_DESCRIPTOR_ARRAY(LANGUAGE_ID_ENG);
 
 // Manufacturer and Product Descriptor Strings
-const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(L"ELMAGNIFICO");
+const USB_Descriptor_String_t PROGMEM ManufacturerString = USB_STRING_DESCRIPTOR(L"CALEeb");
 const USB_Descriptor_String_t PROGMEM ProductString      = USB_STRING_DESCRIPTOR(L"MCU CONTROLLER");
 
 // USB Device Callback - Get Descriptor
