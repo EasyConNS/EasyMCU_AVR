@@ -2,6 +2,8 @@
 
 #include <avr/interrupt.h>
 
+#include "ubda/pins.h"
+
 #define read_bit(r,b) ((r) & (1u << (b)))
 #define reset_bit(r,b) ((r) &= ~(1u << (b)))
 #define set_bit(r,b) ((r) |= (1u << (b)))

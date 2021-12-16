@@ -10,12 +10,12 @@
     #define LEDMASK_TX   LEDS_LED3
     #define LEDMASK_RX   LEDS_LED3
 #elif (REAL_BOARD == UNO)
-    #define MEM_SIZE 412
+    #define MEM_SIZE 430
     #define LEDMASK_TX   LEDS_LED2
 #endif
 
 #if !defined(MEM_SIZE)
-    #define MEM_SIZE      924
+    #define MEM_SIZE      960
 #endif
 #if !defined(LEDMASK_TX)
     #define LEDMASK_TX      LEDS_LED2

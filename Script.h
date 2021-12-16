@@ -6,9 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Common.h"
+#include "LED.h"
 #include "EEPROM.h"
 #include "HID.h"
+
+#define Max(a, b) ((a > b) ? (a) : (b))
+#define Min(a, b) ((a < b) ? (a) : (b))
 
 // constants
 #define VERSION 0x46

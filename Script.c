@@ -1,4 +1,4 @@
-#include "EasyCon.h"
+#include "Script.h"
 
 // global variables
 uint8_t mem[MEM_SIZE] = {0xFF, 0xFF, VERSION}; // preallocated memory for all purposes, as well as static instruction carrier

@@ -8,8 +8,19 @@ inline void timer0_init(void)
     TIMSK0 |= _BV(TOIE0); // Initialize timer0 interrupt
 }
 
-void SystemInit(void)
+inline void serial_init(void)
 {
+    // Initialize serial port.
+    Serial_Init(BADUD_RATE, false);
+    // Serial_CreateStream(NULL);
+    enable_rx_isr();
+    // Initialize LEDs
+}
+
+inline void SystemInit(void)
+{
+    serial_init();
+    LEDs_Init();
     // We need to disable watchdog if enabled by bootloader/fuses.
     MCUSR &= ~_BV(WDRF);
     wdt_disable();

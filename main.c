@@ -18,24 +18,33 @@ exception of Home and Capture. Descriptor modification allows us to
 these buttons for our use.
 */
 
-#include "Joystick.h"
+#include "System.h"
+#include "HID.h"
+#include "LED.h"
+#include "Command.h"
+#include "Interrupt.h"
+//#include "Script.h"
 
 int main(void)
 {
-    SystemInit();
-    CommonInit();
     PCIInit();
+    SystemInit();
     // Initialize script.
-    ScriptInit();
+
+    // TODO
+    // ScriptInit();
+
     // The USB stack should be initialized last.
     HIDInit();
     // Once that's done, we'll enter an infinite loop.
     while (1)
     {
         // codes here...
+
         // Process local script instructions.
-        ScriptTask();
+        // ScriptTask();
         // ApplicationTask();
+
         HIDTask();
     }
 }
@@ -46,15 +55,15 @@ ISR(TIMER0_OVF_vect) // timer0 overflow interrupt ~1ms
 
     HIDTick();
     // script ms
-    Increment_Timer();
-    ScriptTick();
+    //Increment_Timer();
+    //ScriptTick();
 
     BlinkLEDTick();
 }
 
 ISR(USART1_RX_vect)
 {
-    Serial_Task(Serial_ReceiveByte());
+    CommandTask();
 }
 
 ISR(PCINT0_vect)
@@ -62,13 +71,6 @@ ISR(PCINT0_vect)
     /* This is where you get when an interrupt is happening */
     if(!read_bit(PINB, PB5))
     {
-        if(isScriptRunning())
-        {
-            Script_Stop();
-        }
-        else
-        {
-            Script_Start();
-        }
+        // TODO
     }
 }

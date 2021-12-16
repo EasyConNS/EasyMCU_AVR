@@ -3,8 +3,6 @@
 #include <LUFA/Drivers/USB/USB.h>
 #include "LUFADescriptors.h"
 
-#include "Common.h"
-
 #define HAT_TOP 0x00
 #define HAT_TOP_RIGHT 0x01
 #define HAT_RIGHT 0x02
@@ -64,9 +62,6 @@ typedef struct
 	uint8_t RX;		 // Right Stick X
 	uint8_t RY;		 // Right Stick Y
 } USB_JoystickReport_Output_t;
-
-//extern volatile USB_JoystickReport_Input_t next_report;
-//extern volatile uint8_t echo_ms;
 
 void HIDInit(void);
 void HIDTick(void);

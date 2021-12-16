@@ -57,7 +57,7 @@ void EVENT_USB_Device_Connect(void)
 {
   // We can indicate that we're enumerating here (via status LEDs, sound, etc.).
 
-  Device_Connected();
+  // TODO
 }
 
 // Fired to indicate that the device is no longer connected to a host.
@@ -161,7 +161,6 @@ void Report_Task(void)
         // We then send an IN packet on this endpoint.
         Endpoint_ClearIN();
 
-        Echo_Report();
         // set interval
         echo_ms = ECHO_INTERVAL;
       }
