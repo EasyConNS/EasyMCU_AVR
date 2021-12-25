@@ -1,8 +1,5 @@
 #pragma once
 
-#include <LUFA/Drivers/USB/USB.h>
-#include "LUFADescriptors.h"
-
 #define HAT_TOP 0x00
 #define HAT_TOP_RIGHT 0x01
 #define HAT_RIGHT 0x02

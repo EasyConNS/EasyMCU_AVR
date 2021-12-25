@@ -1,11 +1,5 @@
 #pragma once
 
-#include <LUFA/Drivers/Peripheral/Serial.h>
-
-#include "Common.h"
-#include "HID.h"
-#include "LED.h"
-
 #define BUF_SIZE 16
 
 #define OP_VER 0x10 // 0001
@@ -16,6 +10,8 @@
 #define RLY_PNG 0x7F
 #define RLY_ERR 0xB7
 
+typedef void (*CmdActionFuncType) (const uint8_t* data);
+
 typedef enum
 {
     IDLE,
@@ -23,7 +19,22 @@ typedef enum
     FLASH,
 }CommandAction_t;
 
-#define OPCODE opbuf
+typedef struct {
+    uint8_t OP;
+    uint8_t CmdDataLength;
+    CmdActionFuncType ExeFunc;
+}CommandEntryType;
 
+void CommandTick(void);
+void CommandTask(uint8_t byte);
 void SerialSend(uint8_t b);
-void CommandTask(void);
+
+// button
+void ExeResetButton(const uint8_t* data);
+void ExePressButton(const uint8_t* data);
+void ExeReleaseButton(const uint8_t* data);
+// hat
+void ExeSetHAT(const uint8_t* data);
+// L/R stick
+void ExeSetLeftStick(const uint8_t* data);
+void ExeSetRightStick(const uint8_t* data);

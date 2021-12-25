@@ -23,15 +23,12 @@ these buttons for our use.
 #include "LED.h"
 #include "Command.h"
 #include "Interrupt.h"
-//#include "Script.h"
 
 int main(void)
 {
     PCIInit();
     SystemInit();
     // Initialize script.
-
-    // TODO
     // ScriptInit();
 
     // The USB stack should be initialized last.
@@ -43,8 +40,6 @@ int main(void)
 
         // Process local script instructions.
         // ScriptTask();
-        // ApplicationTask();
-
         HIDTask();
     }
 }
@@ -57,13 +52,12 @@ ISR(TIMER0_OVF_vect) // timer0 overflow interrupt ~1ms
     // script ms
     //Increment_Timer();
     //ScriptTick();
-
     BlinkLEDTick();
 }
 
 ISR(USART1_RX_vect)
 {
-    CommandTask();
+    CommandTick();
 }
 
 ISR(PCINT0_vect)

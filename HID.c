@@ -1,3 +1,6 @@
+#include <LUFA/Drivers/USB/USB.h>
+#include "LUFADescriptors.h"
+
 #include "HID.h"
 
 volatile uint8_t echo_ms = 0; // echo counter

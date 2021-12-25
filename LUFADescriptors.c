@@ -1,3 +1,6 @@
+#include <LUFA/Drivers/USB/USB.h>
+#include <avr/pgmspace.h>
+
 #include "LUFADescriptors.h"
 
 // HID Descriptors.

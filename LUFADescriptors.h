@@ -1,10 +1,6 @@
 #ifndef _DESCRIPTORS_H_
 #define _DESCRIPTORS_H_
 
-// Includes
-#include <LUFA/Drivers/USB/USB.h>
-#include <avr/pgmspace.h>
-
 // Type Defines
 // Device Configuration Descriptor Structure
 typedef struct
