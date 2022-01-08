@@ -11,7 +11,7 @@
 #include "HID.h"
 
 // constants
-#define VERSION 0x45
+#define VERSION 0x46
 
 #define ECHO_TIMES 3
 #define SERIAL_BUFFER_SIZE 20
@@ -20,11 +20,12 @@
 #define KEYCODE_OFFSET 90
 #define KEYCODE_MAX 33
 #define REGISTER_OFFSET 130
-#define STACK_OFFSET 150
-#define CALLSTACK_OFFSET 190
-#define FORSTACK_OFFSET 250
-#define INS_OFFSET 370
+#define STACK_OFFSET 180
+#define CALLSTACK_OFFSET 230
+#define FORSTACK_OFFSET 290
+#define INS_OFFSET 410
 #define SEED_OFFSET EMEM_SIZE + 0
+#define LED_SETTING EMEM_SIZE + 2
 
 // serial protocal control bytes and replies
 #define CMD_READY 0xA5
@@ -34,6 +35,7 @@
 #define CMD_SCRIPTSTART 0x83
 #define CMD_SCRIPTSTOP 0x84
 #define CMD_VERSION 0x85
+#define CMD_LED 0x86
 #define REPLY_ERROR 0x00
 #define REPLY_ACK 0xFF
 #define REPLY_BUSY 0xFE
@@ -90,6 +92,7 @@
 // timers declear
 extern volatile uint32_t timer_ms; // script timer
 extern volatile uint32_t wait_ms;  // waiting counter
+extern volatile uint8_t _ledflag;
 
 void ScriptInit(void);
 void ScriptTick(void);

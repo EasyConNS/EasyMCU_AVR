@@ -12,6 +12,7 @@ uint8_t *script_eof = 0;                       // address of EOF
 uint16_t tail_wait = 0;                        // insert an extra wait before next instruction (used by compressed instruction)
 uint32_t timer_elapsed = 0;                    // previous execution time
 bool auto_run = false;
+volatile uint8_t _ledflag = 0;
 
 // timers define
 volatile uint32_t timer_ms = 0; // script timer
@@ -57,6 +58,8 @@ void ScriptInit(void)
         DY(i) = y;
     }
     _report_echo = ECHO_TIMES;
+    // turn on/off led
+    _ledflag = EEP_Read_Byte((uint8_t *)LED_SETTING);
     // only if highest bit is 0
     auto_run = (EEP_Read_Byte((uint8_t *)1) >> 7) == 0;
 }
@@ -115,6 +118,7 @@ void Script_Start(void)
     _script_running = 1;
     _seed = EEP_Read_Word((uint16_t *)SEED_OFFSET);
 
+    if(_ledflag != 0) return;
     StartRunningLED();
 }
 
@@ -148,8 +152,7 @@ void ScriptTask(void)
         {
             if (KEY(i) != 0)
             {
-                KEY(i)
-                --;
+                KEY(i)--;
                 if (KEY(i) == 0)
                 {
                     if (i == 32)
@@ -834,6 +837,12 @@ void Serial_Task(int16_t byte)
                     break;
                 case CMD_VERSION:
                     Serial_Send(VERSION);
+                    break;
+                case CMD_LED:
+                    _ledflag ^= 0x8;
+                    EEP_Write_Byte((uint8_t *)LED_SETTING, _ledflag);
+                    StopRunningLED();
+                    Serial_Send(_ledflag);
                     break;
                 case CMD_READY:
                     serial_command_ready = true;

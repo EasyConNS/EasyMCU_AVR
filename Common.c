@@ -23,6 +23,7 @@ void CommonInit(void)
 
 void BlinkLED(void)
 {
+    if(_ledflag != 0) return;
     led_ms = LED_DURATION;
     LEDs_TurnOnLEDs(LEDMASK_TX);
 }

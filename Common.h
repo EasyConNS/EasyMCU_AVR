@@ -11,6 +11,7 @@
 
 #define Max(a, b) ((a > b) ? (a) : (b))
 #define Min(a, b) ((a < b) ? (a) : (b))
+//#define _BV(n) (1<<(n))
 
 #define BADUD_RATE 9600
 
