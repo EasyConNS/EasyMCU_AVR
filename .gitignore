@@ -1,3 +1,5 @@
+.DS_Store
+*/.DS_Store
 /obj
 *.bin
 *.eep
@@ -6,3 +8,4 @@
 *.lss
 *.map
 *.sym
+/.vscode

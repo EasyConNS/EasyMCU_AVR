@@ -1,6 +1,6 @@
 # SerialCon
 为PokemonTycoon而开发的通过上位机控制Arduino UNO R3，进而操作Nintendo Switch的固件。  
-上位机项目连接：https://github.com/nukieberry/PokemonTycoon  
+上位机项目连接：https://github.com/nukieberry/PokemonTycoon
 思路是上位机通过USB-TTL芯片发送串口数据，由单片机接收处理后向NS发送按键操作。  
 最初只是要实现上位机控制，后来随着EasyCon的加入，已经可以在EEPROM中写入脚本字节码后脱机运行脚本，且使用8位计时器实现更精确的时间控制。具体指令集见上位机项目说明文档。  
 TTL的接线方式：TX接TX(1)，RX接RX(0)，GND接GND
@@ -93,3 +93,13 @@ Flash状态下任何字节都被视为烧录数据，直到达到指定的字节
 
 ##### 未知命令
 在Ready状态下接收到不明控制字节，单片机会返回REPLY_ERROR（0x00）并结束Ready状态。
+
+### refer
+
+- https://github.com/MHeironimus/ArduinoJoystickLibrary
+- https://github.com/arduino/ArduinoCore-avr/blob/master/cores/arduino/wiring_digital.c
+- https://github.com/arduino/ArduinoCore-avr/blob/master/variants/leonardo/pins_arduino.h
+- https://github.com/xiaoliang314/lw_coroutine
+- https://github.com/xiaoliang314/libatask
+- https://github.com/jiejieTop/ButtonDrive
+- https://leer.moe/2019/05/12/ros/

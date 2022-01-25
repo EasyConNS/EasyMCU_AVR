@@ -1,6 +1,6 @@
 #
 #             LUFA Library
-#     Copyright (C) Dean Camera, 2014.
+#     Copyright (C) Dean Camera, 2021.
 #
 #  dean [at] fourwalledcubicle [dot] com
 #           www.lufa-lib.org
@@ -8,36 +8,31 @@
 # --------------------------------------
 #         LUFA Project Makefile.
 # --------------------------------------
+#     Author cale, 2021.
 
 # Run "make help" for target help.
 
-# Set the MCU accordingly to your device (e.g. at90usb1286 for a Teensy 2.0++, or atmega16u2 for an Arduino UNO R3)
-BOARD        = UNO
-MCU          = atmega16u2
-ARCH         = AVR8
-F_CPU        = 16000000
-F_USB        = $(F_CPU)
-OPTIMIZATION = s
-TARGET       = Joystick
-SRC          = $(TARGET).c Descriptors.c $(LUFA_SRC_USB)
-LUFA_PATH    = ./lufa/LUFA
-CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/ 
-LD_FLAGS     =
+REAL_BOARD   := Leonardo
+BOARD        := LEONARDO
 
-# Default target
+#REAL_BOARD   := Beetle
+#BOARD        := LEONARDO
+
+#REAL_BOARD   := UNO
+#BOARD        := UNO
+
+#REAL_BOARD   := Teensy2
+#BOARD        := TEENSY2
+
+#REAL_BOARD   := TEENSY2pp
+#BOARD        := TEENSY2
+
+#ifeq($(CC),gcc)
+#ifdef foo
+ #frobozz=yes
+#else
+ #libs=$(normal_libs)
+#endif
+
 all:
-
-# Include LUFA build script makefiles
-include $(LUFA_PATH)/Build/lufa_core.mk
-include $(LUFA_PATH)/Build/lufa_sources.mk
-include $(LUFA_PATH)/Build/lufa_build.mk
-include $(LUFA_PATH)/Build/lufa_cppcheck.mk
-include $(LUFA_PATH)/Build/lufa_doxygen.mk
-include $(LUFA_PATH)/Build/lufa_dfu.mk
-include $(LUFA_PATH)/Build/lufa_hid.mk
-include $(LUFA_PATH)/Build/lufa_avrdude.mk
-include $(LUFA_PATH)/Build/lufa_atprogram.mk
-
-# Target for LED/buzzer to alert when print is done
-with-alert: all
-with-alert: CC_FLAGS += -DALERT_WHEN_DONE
+include makefile.core.mk
