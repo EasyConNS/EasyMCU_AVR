@@ -71,6 +71,7 @@ void EVENT_USB_Device_ControlRequest(void);
 
 void ZeroEcho(void);
 void ResetReport(void);
+void SetReport(USB_JoystickReport_Input_t *const ReportData);
 void SetButtons(const uint16_t Button);
 void PressButtons(const uint16_t Button);
 void ReleaseButtons(const uint16_t Button);

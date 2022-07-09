@@ -32,6 +32,11 @@ void SetRightStick(const uint8_t RX, const uint8_t RY)
 {
   next_report.RX = RX; next_report.RY = RY;
 }
+void SetReport(USB_JoystickReport_Input_t *const ReportData)
+{
+  // from reportData to next_report
+	memcpy(&next_report, ReportData, sizeof(USB_JoystickReport_Input_t));
+}
 
 void HIDInit(void)
 {

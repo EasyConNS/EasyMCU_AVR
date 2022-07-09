@@ -9,6 +9,8 @@
 
 #define RLY_PNG 0x7F
 #define RLY_ERR 0xB7
+#define RLY_FLH 0xD1
+#define RLY_FLH_END 0xD2
 
 typedef void (*CmdActionFuncType) (const uint8_t* data);
 
@@ -17,6 +19,7 @@ typedef enum
     IDLE,
     BUTTON,
     FLASH,
+    FLASH_START,
 }CommandAction_t;
 
 typedef struct {

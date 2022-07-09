@@ -36,6 +36,11 @@ const PROGMEM CommandEntryType CommandTable[] = {
     .OP = 0x05,
     .CmdDataLength = 2,
     .ExeFunc = ExeSetRightStick
+  },
+  {
+    .OP = 0x06,
+    .CmdDataLength = 7,
+    .ExeFunc = ExeSetButtons
   }
 };
 
@@ -73,6 +78,10 @@ void ExeSetRightStick(const uint8_t* data) {
   SetRightStick(data[0], data[1]);
 }
 
+void ExeSetButtons(const uint8_t* data) {
+  SetReport((USB_JoystickReport_Input_t*)data);
+}
+
 void CommandTick(void) {
   int16_t byte =  Serial_ReceiveByte();
   if (byte < 0) return;
@@ -81,14 +90,14 @@ void CommandTick(void) {
   CommandTask(byte);
 }
 
-static void OPTask(uint8_t op) {
-  if ((op & 0xF0) == OP_ACT)
+static void OPTask() {
+  if ((OPCODE & 0xF0) == OP_ACT)
   {
     cmd_state = BUTTON;
     buffer_length = 0;
     return;
   }
-  switch(op)
+  switch(OPCODE)
   {
     case OP_VER:
       SerialSend(MCU_VERSION);
@@ -98,6 +107,7 @@ static void OPTask(uint8_t op) {
     break;
     case OP_FLH:
       cmd_state = FLASH;
+      buffer_length = 0;
     break;
     default:
       cmd_state = IDLE;
@@ -137,21 +147,36 @@ static void ButtonTask(void) {
   }
 }
 
+static void FlashTask(uint8_t byte) {
+  // eeprom += byte
+  cmd_state = IDLE;
+  SerialSend(RLY_FLH_END);
+}
+
 void CommandTask(uint8_t byte)
 {
   switch(cmd_state)
   {
     case IDLE:
+      memset(serialbuf, 0, BUF_SIZE);
       OPCODE = byte;
-      OPTask(byte);
+      OPTask();
     break;
     case BUTTON:
       serialbuf[buffer_length++] = byte;
       ButtonTask();
     break;
     case FLASH:
-      buffer_length = BUF_SIZE;
-      memset(serialbuf, 0, BUF_SIZE);
+      serialbuf[buffer_length++] = byte;
+      if(buffer_length == 4)
+      {
+        cmd_state = FLASH_START;
+      }
+    break;
+    case FLASH_START:
+      FlashTask(byte);
+    break;
+    default:
     break;
   }
 
