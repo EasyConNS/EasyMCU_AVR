@@ -4,10 +4,11 @@
 #include <LUFA/Drivers/Peripheral/Serial.h>
 
 #include "ubda/binfos.h"
-#include "EasyCon.h"
+#include "EasyCon_API.h"
+
 // Start script.
-#define Device_Connected Script_AutoStart
-#define Echo_Report Decrement_Report_Echo
+#define Device_Connected EasyCon_script_auto_start
+#define Echo_Report EasyCon_decrease_report_echo
 
 #define Max(a, b) ((a > b) ? (a) : (b))
 #define Min(a, b) ((a < b) ? (a) : (b))
@@ -19,11 +20,10 @@
 #define TurnOnLED LEDs_TurnOnLEDs
 #define TurnOffLED LEDs_TurnOffLEDs
 
+extern volatile uint8_t led_ms;
+
 // UART && LEDS Init
 void CommonInit(void);
 void BlinkLED(void);
 void BlinkLEDTick(void);
 void Serial_Send(const char DataByte);
-
-static inline void StartRunningLED(void) { LEDs_TurnOnLEDs(LEDMASK_RX); }
-static inline void StopRunningLED(void) { LEDs_TurnOffLEDs(LEDMASK_RX); }

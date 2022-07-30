@@ -1,19 +1,21 @@
 #ifndef _EASY_CON_H_
 #define _EASY_CON_H_
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
+#include "EasyCon_API.h"
 
-#include "Common.h"
-#include "EEPROM.h"
-#include "HID.h"
+/**********************************************************************/
+// It's core of EasyCon, there is no need to change in most situations
+/**********************************************************************/
 
-// constants
+/**********************************************************************/
+// EasyCon version, need check Whether PC could communicate
+/**********************************************************************/
 #define VERSION 0x46
 
+// if lost key too many, could increase it,recommand default value
 #define ECHO_TIMES 3
+
+// constants
 #define SERIAL_BUFFER_SIZE 20
 #define DIRECTION_OFFSET 20
 #define VARSPACE_OFFSET 90
@@ -24,8 +26,8 @@
 #define CALLSTACK_OFFSET 230
 #define FORSTACK_OFFSET 290
 #define INS_OFFSET 410
-#define SEED_OFFSET EMEM_SIZE + 0
-#define LED_SETTING EMEM_SIZE + 2
+#define SEED_OFFSET MEM_SIZE + 0
+#define LED_SETTING MEM_SIZE + 2
 
 // serial protocal control bytes and replies
 #define CMD_READY 0xA5
@@ -88,29 +90,5 @@
 #define _v mem[INS_OFFSET + 21]
 #define _flag mem[INS_OFFSET + 22]
 #define _seed *(uint16_t *)(mem + INS_OFFSET + 23)
-
-// timers declear
-extern volatile uint32_t timer_ms; // script timer
-extern volatile uint32_t wait_ms;  // waiting counter
-extern volatile uint8_t _ledflag;
-
-void ScriptInit(void);
-void ScriptTick(void);
-void ScriptTask(void);
-
-void Script_AutoStart(void);
-bool isScriptRunning(void);
-void Script_Start(void);
-void Script_Stop(void);
-
-void Serial_Task(int16_t byte);
-
-inline void Increment_Timer(void)
-{
-    // increment timer
-    timer_ms++;
-}
-void Decrement_Report_Echo(void);
-void BinaryOp(uint8_t op, uint8_t reg, int16_t value);
 
 #endif

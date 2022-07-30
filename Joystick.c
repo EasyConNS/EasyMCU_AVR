@@ -26,7 +26,7 @@ int main(void)
     CommonInit();
     PCIInit();
     // Initialize script.
-    ScriptInit();
+    EasyCon_script_init();
     // The USB stack should be initialized last.
     HIDInit();
     // Once that's done, we'll enter an infinite loop.
@@ -34,7 +34,7 @@ int main(void)
     {
         // codes here...
         // Process local script instructions.
-        ScriptTask();
+        EasyCon_script_task();
         // ApplicationTask();
         HIDTask();
     }
@@ -46,15 +46,14 @@ ISR(TIMER0_OVF_vect) // timer0 overflow interrupt ~1ms
 
     HIDTick();
     // script ms
-    Increment_Timer();
-    ScriptTick();
+    EasyCon_tick();
 
     BlinkLEDTick();
 }
 
 ISR(USART1_RX_vect)
 {
-    Serial_Task(Serial_ReceiveByte());
+    EasyCon_serial_task(Serial_ReceiveByte());
 }
 
 ISR(PCINT0_vect)
@@ -62,13 +61,13 @@ ISR(PCINT0_vect)
     /* This is where you get when an interrupt is happening */
     if(!read_bit(PINB, PB5))
     {
-        if(isScriptRunning())
+        if(EasyCon_is_script_running())
         {
-            Script_Stop();
+            EasyCon_script_stop();
         }
         else
         {
-            Script_Start();
+            EasyCon_script_start();
         }
     }
 }

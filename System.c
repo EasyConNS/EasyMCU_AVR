@@ -14,7 +14,8 @@ void SystemInit(void)
     MCUSR &= ~_BV(WDRF);
     wdt_disable();
     // We need to disable clock division before initializing the USB hardware.
-    clock_prescale_set(clock_div_1);
+    // clock_div_1 is 0 , avoiding compile error in win10
+    clock_prescale_set(0);
     // We need disable global interrupts first for init timer.
     GlobalInterruptDisable();
     // 8-bit TCNT0 max 255.

@@ -22,6 +22,7 @@ OPTIMIZATION := s
 TARGET       := ./$(REAL_BOARD)/$(REAL_BOARD)
 SRC          += Joystick.c LUFADescriptors.c
 SRC		 	 += HID.c System.c Common.c
+SRC		 	 += EasyCon_API.c
 SRC		 	 += EasyCon.c
 SRC			 += $(LUFA_SRC_USB)
 CC_FLAGS     := -DUSE_LUFA_CONFIG_HEADER -IConfig

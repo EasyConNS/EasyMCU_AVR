@@ -1,40 +1,46 @@
 #include "EasyCon.h"
+#include "EasyCon_API.h"
 
 // global variables
-uint8_t mem[MEM_SIZE] = {0xFF, 0xFF, VERSION}; // preallocated memory for all purposes, as well as static instruction carrier
-size_t serial_buffer_length = 0;               // current length of serial buffer
-bool serial_command_ready = false;             // CMD_READY acknowledged, ready to receive command byte
-uint8_t *flash_addr = 0;                       // start location for EEPROM flashing
-uint16_t flash_index = 0;                      // current buffer index
-uint16_t flash_count = 0;                      // number of bytes expected for this time
-uint8_t *script_addr = 0;                      // address of next instruction
-uint8_t *script_eof = 0;                       // address of EOF
-uint16_t tail_wait = 0;                        // insert an extra wait before next instruction (used by compressed instruction)
-uint32_t timer_elapsed = 0;                    // previous execution time
-bool auto_run = false;
-volatile uint8_t _ledflag = 0;
+static uint8_t mem[MEM_SIZE] = {0xFF, 0xFF, VERSION}; // preallocated memory for all purposes, as well as static instruction carrier
+static size_t serial_buffer_length = 0;               // current length of serial buffer
+static bool serial_command_ready = false;             // CMD_READY acknowledged, ready to receive command byte
+static uint8_t *flash_addr = 0;                       // start location for EEPROM flashing
+static uint16_t flash_index = 0;                      // current buffer index
+static uint16_t flash_count = 0;                      // number of bytes expected for this time
+static uint8_t *script_addr = 0;                      // address of next instruction
+static uint8_t *script_eof = 0;                       // address of EOF
+static uint16_t tail_wait = 0;                        // insert an extra wait before next instruction (used by compressed instruction)
+static uint32_t timer_elapsed = 0;                    // previous execution time
+static bool auto_run = false;
+
+// set led state
+static volatile uint8_t _ledflag = 0;
 
 // timers define
-volatile uint32_t timer_ms = 0; // script timer
-volatile uint32_t wait_ms = 0;  // waiting counter
+static volatile uint32_t timer_ms = 0; // script timer
+static volatile uint32_t wait_ms = 0;  // waiting counter
+
+// some funcs only use in EasyCon
+static void EasyCon_binaryop(uint8_t op, uint8_t reg, int16_t value);
 
 // Initialize script. Load static script into EEPROM if exists.
-void ScriptInit(void)
+void EasyCon_script_init(void)
 {
     if (mem[0] != 0xFF || mem[1] != 0xFF)
     {
         // flash instructions from firmware
         int len = mem[0] | ((mem[1] & 0b01111111) << 8);
         for (int i = 0; i < len; i++)
-            if (EEP_Read_Byte((uint8_t *)i) != mem[i])
-                EEP_Write_Byte((uint8_t *)i, mem[i]);
+            if (EasyCon_read_byte((uint8_t *)i) != mem[i])
+                EasyCon_write_byte((uint8_t *)i, mem[i]);
     }
     memset(mem, 0, sizeof(mem));
 
     // randomize
-    _seed = EEP_Read_Word((uint16_t *)SEED_OFFSET) + 1;
+    _seed = EasyCon_read_2byte((uint16_t *)SEED_OFFSET) + 1;
     srand(_seed);
-    EEP_Write_Word((uint16_t *)SEED_OFFSET, _seed);
+    EasyCon_write_2byte((uint16_t *)SEED_OFFSET, _seed);
 
     // calculate direction presets
     for (int i = 0; i < 16; i++)
@@ -59,19 +65,26 @@ void ScriptInit(void)
     }
     _report_echo = ECHO_TIMES;
     // turn on/off led
-    _ledflag = EEP_Read_Byte((uint8_t *)LED_SETTING);
+    _ledflag = EasyCon_read_byte((uint8_t *)LED_SETTING);
     // only if highest bit is 0
-    auto_run = (EEP_Read_Byte((uint8_t *)1) >> 7) == 0;
+    auto_run = (EasyCon_read_byte((uint8_t *)1) >> 7) == 0;
 }
 
-void ScriptTick(void)
+void EasyCon_script_tick(void)
 {
     // decrement waiting counter
     if (wait_ms != 0 && (_report_echo == 0 || wait_ms > 1))
         wait_ms--;
 }
 
-void Decrement_Report_Echo(void)
+void EasyCon_tick(void)
+{
+    // increment timer
+    timer_ms++;
+    EasyCon_script_tick();
+}
+
+void EasyCon_decrease_report_echo(void)
 {
     // decrement echo counter
     if (!_script_running || _report_echo > 0 || wait_ms < 2)
@@ -80,7 +93,7 @@ void Decrement_Report_Echo(void)
     }
 }
 
-bool isScriptRunning(void)
+bool EasyCon_is_script_running(void)
 {
     if(_script_running == 1)
     {
@@ -93,17 +106,17 @@ bool isScriptRunning(void)
 }
 
 // Run script on startup.
-void Script_AutoStart(void)
+void EasyCon_script_auto_start(void)
 {
     if (auto_run)
-        Script_Start();
+        EasyCon_script_start();
 }
 
 // Run script.
-void Script_Start(void)
+void EasyCon_script_start(void)
 {
     script_addr = (uint8_t *)2;
-    uint16_t eof = EEP_Read_Byte((uint8_t *)0) | (EEP_Read_Byte((uint8_t *)1) << 8);
+    uint16_t eof = EasyCon_read_byte((uint8_t *)0) | (EasyCon_read_byte((uint8_t *)1) << 8);
     if (eof == 0xFFFF)
         eof = 0;
     script_eof = (uint8_t *)(eof & 0x7FFF);
@@ -116,27 +129,27 @@ void Script_Start(void)
     tail_wait = 0;
     memset(mem + VARSPACE_OFFSET, 0, sizeof(mem) - VARSPACE_OFFSET);
     _script_running = 1;
-    _seed = EEP_Read_Word((uint16_t *)SEED_OFFSET);
+    _seed = EasyCon_read_2byte((uint16_t *)SEED_OFFSET);
 
     if(_ledflag != 0) return;
-    StartRunningLED();
+    EasyCon_runningLED_on();
 }
 
 // Stop script.
-void Script_Stop(void)
+void EasyCon_script_stop(void)
 {
     _script_running = 0;
     timer_elapsed = timer_ms;
     ////////////////////////////
-    ResetReport();
+    reset_hid_report();
     ///////////////////////////
     _report_echo = ECHO_TIMES;
 
-    StopRunningLED();
+    EasyCon_runningLED_off();
 }
 
 // Process script instructions.
-void ScriptTask(void)
+void EasyCon_script_task(void)
 {
     while (true)
     {
@@ -147,7 +160,7 @@ void ScriptTask(void)
         if (wait_ms > 0)
             return;
         // release keys
-        BlinkLED();
+        EasyCon_blink_led();
         for (int i = 0; i <= KEYCODE_MAX; i++)
         {
             if (KEY(i) != 0)
@@ -192,12 +205,12 @@ void ScriptTask(void)
         if (script_addr >= script_eof)
         {
             // reaches EOF, end script
-            Script_Stop();
+            EasyCon_script_stop();
             return;
         }
         _addr = (uint16_t)script_addr;
-        _ins0 = EEP_Read_Byte(script_addr++);
-        _ins1 = EEP_Read_Byte(script_addr++);
+        _ins0 = EasyCon_read_byte(script_addr++);
+        _ins1 = EasyCon_read_byte(script_addr++);
         int32_t n;
         int16_t reg;
         if (_ins0 & 0b10000000)
@@ -311,13 +324,13 @@ void ScriptTask(void)
                     reg = _ins & ((1 << 9) - 1);
                     if ((_ins0 & 0b10) == 0)
                     {
-                        Serial_Send(reg);
-                        Serial_Send(reg >> 8);
+                        EasyCon_serial_send(reg);
+                        EasyCon_serial_send(reg >> 8);
                     }
                     else
                     {
-                        Serial_Send(mem[reg]);
-                        Serial_Send(mem[reg + 1]);
+                        EasyCon_serial_send(mem[reg]);
+                        EasyCon_serial_send(mem[reg + 1]);
                     }
                     break;
                 }
@@ -339,8 +352,8 @@ void ScriptTask(void)
                 else if ((_ins0 & 0b10) == 0)
                 {
                     // extended
-                    _ins2 = EEP_Read_Byte(script_addr++);
-                    _ins3 = EEP_Read_Byte(script_addr++);
+                    _ins2 = EasyCon_read_byte(script_addr++);
+                    _ins3 = EasyCon_read_byte(script_addr++);
                     n = _insEx & ((1L << 25) - 1);
                     // unscale
                     n *= 10;
@@ -396,8 +409,8 @@ void ScriptTask(void)
                 if (_ins0 & 0b100)
                 {
                     // extended
-                    _ins2 = EEP_Read_Byte(script_addr++);
-                    _ins3 = EEP_Read_Byte(script_addr++);
+                    _ins2 = EasyCon_read_byte(script_addr++);
+                    _ins3 = EasyCon_read_byte(script_addr++);
                 }
                 if (E_SET)
                 {
@@ -549,7 +562,7 @@ void ScriptTask(void)
                         else
                         {
                             // main function
-                            Script_Stop();
+                            EasyCon_script_stop();
                             break;
                         }
                         break;
@@ -565,12 +578,12 @@ void ScriptTask(void)
                         if ((_ins1 & (1 << 6)) == 0)
                         {
                             // binary operations on instant
-                            _ins2 = EEP_Read_Byte(script_addr++);
-                            _ins3 = EEP_Read_Byte(script_addr++);
+                            _ins2 = EasyCon_read_byte(script_addr++);
+                            _ins3 = EasyCon_read_byte(script_addr++);
                             _v = (_ins >> 3) & 0b111;
                             _ri0 = _ins & 0b111;
                             reg = _insEx;
-                            BinaryOp(_v, _ri0, reg);
+                            EasyCon_binaryop(_v, _ri0, reg);
                         }
                         else
                         {
@@ -593,7 +606,7 @@ void ScriptTask(void)
                     _v = (_ins >> 6) & 0b111;
                     _ri0 = (_ins >> 3) & 0b111;
                     _ri1 = _ins & 0b111;
-                    BinaryOp(_v, _ri0, REG(_ri1));
+                    EasyCon_binaryop(_v, _ri0, REG(_ri1));
                 }
                 else if ((_ins0 & 0b111) == 0b110)
                 {
@@ -660,7 +673,7 @@ void ScriptTask(void)
                         if (!_seed)
                         {
                             _seed = timer_ms;
-                            EEP_Write_Word((uint16_t *)SEED_OFFSET, _seed);
+                            EasyCon_write_2byte((uint16_t *)SEED_OFFSET, _seed);
                             srand(_seed);
                         }
                         REG(_ri0) = rand() % REG(_ri0);
@@ -702,7 +715,7 @@ void ScriptTask(void)
 }
 
 // Perform binary operations by operator code
-void BinaryOp(uint8_t op, uint8_t reg, int16_t value)
+static void EasyCon_binaryop(uint8_t op, uint8_t reg, int16_t value)
 {
     if (reg == 0)
         return;
@@ -744,11 +757,11 @@ void BinaryOp(uint8_t op, uint8_t reg, int16_t value)
 }
 
 // Process data from serial port.
-void Serial_Task(int16_t byte)
+void EasyCon_serial_task(int16_t byte)
 {
     if (byte < 0)
         return;
-    BlinkLED();
+    EasyCon_blink_led();
     if (flash_index < flash_count)
     {
         // flashing
@@ -758,8 +771,8 @@ void Serial_Task(int16_t byte)
         {
             // all bytes received
             for (flash_index = 0; flash_index < flash_count; flash_index++, flash_addr++)
-                EEP_Write_Byte(flash_addr, SERIAL_BUFFER(flash_index));
-            Serial_Send(REPLY_FLASHEND);
+                EasyCon_write_byte(flash_addr, SERIAL_BUFFER(flash_index));
+            EasyCon_serial_send(REPLY_FLASHEND);
         }
     }
     else
@@ -780,7 +793,7 @@ void Serial_Task(int16_t byte)
                 if (_script_running)
                 {
                     // script running, send BUSY
-                    Serial_Send(REPLY_BUSY);
+                    EasyCon_serial_send(REPLY_BUSY);
                 }
                 else
                 {
@@ -794,7 +807,7 @@ void Serial_Task(int16_t byte)
                     // set flag
                     _report_echo = ECHO_TIMES;
                     // send ACK
-                    Serial_Send(REPLY_ACK);
+                    EasyCon_serial_send(REPLY_ACK);
                 }
                 serial_command_ready = false;
             }
@@ -809,13 +822,13 @@ void Serial_Task(int16_t byte)
                     // instruction count
                     //uint8_t* count = (uint8_t*)(eeprom_read_byte((uint8_t*)0) | (eeprom_read_byte((uint8_t*)1) << 8));
                     //for (uint8_t* i = 0; i < count; i++)
-                    //Serial_Send(eeprom_read_byte(i));
+                    //EasyCon_serial_send(eeprom_read_byte(i));
 
                     // current loop variable
                     n = FOR_I(_forstackindex - 1);
                     for (int i = 0; i < 4; i++)
                     {
-                        Serial_Send(n);
+                        EasyCon_serial_send(n);
                         n >>= 8;
                     }
 
@@ -823,7 +836,7 @@ void Serial_Task(int16_t byte)
                     n = timer_elapsed;
                     for (int i = 0; i < 4; i++)
                     {
-                        Serial_Send(n);
+                        EasyCon_serial_send(n);
                         n >>= 8;
                     }
 
@@ -831,55 +844,55 @@ void Serial_Task(int16_t byte)
                     n = (uint16_t)script_addr;
                     for (int i = 0; i < 2; i++)
                     {
-                        Serial_Send(n);
+                        EasyCon_serial_send(n);
                         n >>= 8;
                     }
                     break;
                 case CMD_VERSION:
-                    Serial_Send(VERSION);
+                    EasyCon_serial_send(VERSION);
                     break;
                 case CMD_LED:
                     _ledflag ^= 0x8;
-                    EEP_Write_Byte((uint8_t *)LED_SETTING, _ledflag);
-                    StopRunningLED();
-                    Serial_Send(_ledflag);
+                    EasyCon_write_byte((uint8_t *)LED_SETTING, _ledflag);
+                    EasyCon_runningLED_off();
+                    EasyCon_serial_send(_ledflag);
                     break;
                 case CMD_READY:
                     serial_command_ready = true;
                     break;
                 case CMD_HELLO:
-                    Serial_Send(REPLY_HELLO);
+                    EasyCon_serial_send(REPLY_HELLO);
                     break;
                 case CMD_FLASH:
                     if (serial_buffer_length != 5)
                     {
-                        Serial_Send(REPLY_ERROR);
+                        EasyCon_serial_send(REPLY_ERROR);
                         break;
                     }
-                    Script_Stop();
+                    EasyCon_script_stop();
                     flash_addr = (uint8_t *)(SERIAL_BUFFER(0) | (SERIAL_BUFFER(1) << 7));
                     flash_count = (SERIAL_BUFFER(2) | (SERIAL_BUFFER(3) << 7));
                     flash_index = 0;
-                    Serial_Send(REPLY_FLASHSTART);
+                    EasyCon_serial_send(REPLY_FLASHSTART);
                     break;
                 case CMD_SCRIPTSTART:
-                    Script_Start();
-                    Serial_Send(REPLY_SCRIPTACK);
+                    EasyCon_script_start();
+                    EasyCon_serial_send(REPLY_SCRIPTACK);
                     break;
                 case CMD_SCRIPTSTOP:
-                    Script_Stop();
-                    Serial_Send(REPLY_SCRIPTACK);
+                    EasyCon_script_stop();
+                    EasyCon_serial_send(REPLY_SCRIPTACK);
                     break;
                 default:
                     // error
-                    Serial_Send(REPLY_ERROR);
+                    EasyCon_serial_send(REPLY_ERROR);
                     break;
                 }
             }
             else
             {
                 // error
-                Serial_Send(serial_buffer_length);
+                EasyCon_serial_send(serial_buffer_length);
             }
             // clear buffer
             serial_buffer_length = 0;
@@ -888,4 +901,9 @@ void Serial_Task(int16_t byte)
         if (serial_buffer_length >= SERIAL_BUFFER_SIZE)
             serial_buffer_length = 0;
     }
+}
+
+uint8_t EasyCon_is_LED_enable(void)
+{
+    return _ledflag;
 }

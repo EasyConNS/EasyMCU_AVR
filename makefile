@@ -12,8 +12,8 @@
 
 # Run "make help" for target help.
 
-REAL_BOARD   := Leonardo
-BOARD        := LEONARDO
+#REAL_BOARD   := Leonardo
+#BOARD        := LEONARDO
 
 #REAL_BOARD   := Beetle
 #BOARD        := LEONARDO
@@ -21,8 +21,8 @@ BOARD        := LEONARDO
 #REAL_BOARD   := UNO
 #BOARD        := UNO
 
-#REAL_BOARD   := Teensy2
-#BOARD        := TEENSY2
+REAL_BOARD   := Teensy2
+BOARD        := TEENSY2
 
 #REAL_BOARD   := TEENSY2pp
 #BOARD        := TEENSY2
