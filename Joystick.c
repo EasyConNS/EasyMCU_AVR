@@ -32,10 +32,8 @@ int main(void)
     // Once that's done, we'll enter an infinite loop.
     while (1)
     {
-        // codes here...
         // Process local script instructions.
         EasyCon_script_task();
-        // ApplicationTask();
         HIDTask();
     }
 }

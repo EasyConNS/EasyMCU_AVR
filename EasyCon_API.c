@@ -64,7 +64,6 @@ void EasyCon_runningLED_off(void)
  */
 void EasyCon_blink_led(void)
 {
-    if(EasyCon_is_LED_enable() != 0) return;
     led_ms = LED_DURATION;
     LEDs_TurnOnLEDs(LEDMASK_TX);
 }

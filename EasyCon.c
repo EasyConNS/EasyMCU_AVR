@@ -160,7 +160,8 @@ void EasyCon_script_task(void)
         if (wait_ms > 0)
             return;
         // release keys
-        EasyCon_blink_led();
+        if(_ledflag == 0)
+            EasyCon_blink_led();
         for (int i = 0; i <= KEYCODE_MAX; i++)
         {
             if (KEY(i) != 0)
@@ -761,7 +762,8 @@ void EasyCon_serial_task(int16_t byte)
 {
     if (byte < 0)
         return;
-    EasyCon_blink_led();
+    if(_ledflag == 0)
+        EasyCon_blink_led();
     if (flash_index < flash_count)
     {
         // flashing
@@ -901,9 +903,4 @@ void EasyCon_serial_task(int16_t byte)
         if (serial_buffer_length >= SERIAL_BUFFER_SIZE)
             serial_buffer_length = 0;
     }
-}
-
-uint8_t EasyCon_is_LED_enable(void)
-{
-    return _ledflag;
 }

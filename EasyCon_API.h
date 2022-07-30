@@ -133,6 +133,5 @@ extern void EasyCon_script_auto_start(void);
 extern bool EasyCon_is_script_running(void);
 extern void EasyCon_script_start(void);
 extern void EasyCon_script_stop(void);
-extern uint8_t EasyCon_is_LED_enable(void);
 
 #endif
