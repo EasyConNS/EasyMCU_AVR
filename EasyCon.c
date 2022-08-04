@@ -2,6 +2,9 @@
 #include "EasyCon_API.h"
 
 // global variables
+volatile uint8_t echo_ms = 0; // echo counter
+
+// static variables
 static uint8_t mem[MEM_SIZE] = {0xFF, 0xFF, VERSION}; // preallocated memory for all purposes, as well as static instruction carrier
 static size_t serial_buffer_length = 0;               // current length of serial buffer
 static bool serial_command_ready = false;             // CMD_READY acknowledged, ready to receive command byte
@@ -81,6 +84,8 @@ void EasyCon_tick(void)
 {
     // increment timer
     timer_ms++;
+    if (echo_ms != 0)
+        echo_ms--;
     EasyCon_script_tick();
 }
 
@@ -123,7 +128,7 @@ void EasyCon_script_start(void)
     // reset variables
     wait_ms = 0;
     ///////////////////////////
-    ZeroEcho();
+    zero_echo();
     ///////////////////////////
     timer_ms = 0;
     tail_wait = 0;
@@ -903,4 +908,9 @@ void EasyCon_serial_task(int16_t byte)
         if (serial_buffer_length >= SERIAL_BUFFER_SIZE)
             serial_buffer_length = 0;
     }
+}
+
+void zero_echo(void)
+{
+  echo_ms = 0;
 }

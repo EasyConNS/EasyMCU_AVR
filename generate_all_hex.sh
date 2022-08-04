@@ -4,7 +4,7 @@ EasyCon_Firmware_path=../EasyCon/Firmware
 # add new board here
 Boards=(UNO Teensy2 Leonardo Teensy2pp Beetle)
 # increase new verrsion here
-Version=5
+Version=6
 
 for board in ${Boards[@]};
 do

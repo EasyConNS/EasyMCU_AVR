@@ -77,7 +77,6 @@ void EVENT_USB_Device_Disconnect(void);
 void EVENT_USB_Device_ConfigurationChanged(void);
 void EVENT_USB_Device_ControlRequest(void);
 
-void ZeroEcho(void);
 void ResetReport(void);
 void SetButtons(const uint16_t Button);
 void PressButtons(const uint16_t Button);

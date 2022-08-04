@@ -1,12 +1,8 @@
 #include "HID.h"
 
-volatile uint8_t echo_ms = 0; // echo counter
 USB_JoystickReport_Input_t next_report;
 
-void ZeroEcho(void)
-{
-  echo_ms = 0;
-}
+
 // Reset report to default.
 void ResetReport(void)
 {
@@ -34,13 +30,6 @@ void HIDInit(void)
 {
   ResetReport();
   USB_Init();
-}
-
-void HIDTick(void)
-{
-	// decrement echo counter
-	if (echo_ms != 0)
-		echo_ms--;
 }
 
 void Report_Task(void);

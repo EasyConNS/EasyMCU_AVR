@@ -42,7 +42,6 @@ ISR(TIMER0_OVF_vect) // timer0 overflow interrupt ~1ms
 {
     TCNT0 += 6; // add 6 to the register (our work around)
 
-    HIDTick();
     // script ms
     EasyCon_tick();
 

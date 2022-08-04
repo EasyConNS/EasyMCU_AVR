@@ -32,7 +32,7 @@ extern void EasyCon_tick(void);
 extern void EasyCon_serial_task(int16_t byte);
 
 /* decrement
- * need call when get a report sent
+ * need call when a report sent
  * no date return -1
  */
 extern void EasyCon_decrease_report_echo(void);
@@ -83,11 +83,6 @@ extern void EasyCon_serial_send(const char DataByte);
 
 // about hid report
 
-/* clean echo times in HID
- * need implement
- */
-extern void zero_echo(void);
-
 /* reset hid report to default.
  * need implement
  */
@@ -133,5 +128,7 @@ extern void EasyCon_script_auto_start(void);
 extern bool EasyCon_is_script_running(void);
 extern void EasyCon_script_start(void);
 extern void EasyCon_script_stop(void);
+
+volatile uint8_t echo_ms; // echo counter
 
 #endif
