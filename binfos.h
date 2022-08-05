@@ -2,7 +2,7 @@
 #define BINFOS_H
 
 #ifdef UNO
-     #define MEM_SIZE 412
+     #define MEM_SIZE 398
      #define LED_TX   LEDS_LED2
 #endif
 

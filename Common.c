@@ -28,7 +28,7 @@ void BlinkLEDTick(void)
     {
         led_ms--;
         if (led_ms == 0)
-            LEDs_TurnOffLEDs(LEDMASK_TX);
+            LEDs_TurnOffLEDs(LED_TX);
     }
 }
 
