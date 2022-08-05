@@ -26,6 +26,7 @@ static volatile uint32_t wait_ms = 0;  // waiting counter
 
 // some funcs only use in EasyCon
 static void EasyCon_binaryop(uint8_t op, uint8_t reg, int16_t value);
+static void zero_echo(void);
 
 // Initialize script. Load static script into EEPROM if exists.
 void EasyCon_script_init(void)

@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <LUFA/Drivers/Board/LEDs.h>
+#include "binfos.h"
 #include "HID.h"
 
 /**********************************************************************/

@@ -3,7 +3,7 @@
 #include <LUFA/Drivers/Board/LEDs.h>
 #include <LUFA/Drivers/Peripheral/Serial.h>
 
-#include "ubda/binfos.h"
+#include "binfos.h"
 #include "EasyCon_API.h"
 
 // Start script.

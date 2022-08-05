@@ -18,13 +18,13 @@
 #REAL_BOARD   := Beetle
 #BOARD        := LEONARDO
 
-#REAL_BOARD   := UNO
-#BOARD        := UNO
+REAL_BOARD   := UNO
+BOARD        := UNO
 
-REAL_BOARD   := Teensy2
-BOARD        := TEENSY2
+#REAL_BOARD   := Teensy2
+#BOARD        := TEENSY2
 
-#REAL_BOARD   := TEENSY2pp
+#REAL_BOARD   := Teensy2pp
 #BOARD        := TEENSY2
 
 #ifeq($(CC),gcc)

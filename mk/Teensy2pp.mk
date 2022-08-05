@@ -1,4 +1,4 @@
-REAL_BOARD   := TEENSY2pp
+REAL_BOARD   := Teensy2pp
 BOARD        := TEENSY2
 
 all:

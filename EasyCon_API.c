@@ -48,7 +48,7 @@ void EasyCon_write_2byte(uint16_t* addr,uint16_t value)
  */
 void EasyCon_runningLED_on(void)
 {
-    LEDs_TurnOnLEDs(LEDMASK_RX); 
+    LEDs_TurnOnLEDs(LED_RX); 
 }
 
 /* running led off
@@ -56,7 +56,7 @@ void EasyCon_runningLED_on(void)
  */
 void EasyCon_runningLED_off(void)
 {
-    LEDs_TurnOffLEDs(LEDMASK_RX);
+    LEDs_TurnOffLEDs(LED_RX);
 }
 
 /* data led blink
@@ -65,7 +65,7 @@ void EasyCon_runningLED_off(void)
 void EasyCon_blink_led(void)
 {
     led_ms = LED_DURATION;
-    LEDs_TurnOnLEDs(LEDMASK_TX);
+    LEDs_TurnOnLEDs(LED_TX);
 }
 
 /* serial send 1 byte
