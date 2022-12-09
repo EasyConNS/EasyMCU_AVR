@@ -14,7 +14,7 @@
 #define Min(a, b) ((a < b) ? (a) : (b))
 //#define _BV(n) (1<<(n))
 
-#define BADUD_RATE 115200
+#define BADUD_RATE 9600
 
 #define LED_DURATION 50
 #define TurnOnLED LEDs_TurnOnLEDs
